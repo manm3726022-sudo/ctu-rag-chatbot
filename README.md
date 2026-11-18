@@ -2,8 +2,6 @@
 
 Chatbot tiếng Việt tư vấn **quy chế học vụ và thông tin liên quan của Đại học Cần Thơ (CTU)**, xây dựng theo kỹ thuật **RAG**: hệ thống tìm bằng chứng trong kho tài liệu do người quản lý cung cấp, rồi mới nhờ mô hình ngôn ngữ (GroqCloud Free API) tổng hợp câu trả lời kèm nguồn trích dẫn. Dự án **không huấn luyện** LLM để ghi nhớ quy chế, nhằm giảm nguy cơ bịa thông tin (hallucination).
 
-> Dự án học phần của nhóm 4 thành viên. Tài liệu kỹ thuật chi tiết: Pipeline triển khai (PDF) và sổ tay kỹ thuật `docs/runbook.md`.
-
 ## Phạm vi MVP
 
 - Một giao diện chatbot (Streamlit) dành cho sinh viên; hiển thị câu trả lời và nguồn trích dẫn.
@@ -73,7 +71,7 @@ ctu-rag-chatbot/
 - Mỗi người viết test cho module mình phụ trách và review ít nhất một Pull Request của người khác.
 - **Không commit:** `.env`, khoá API, mật khẩu, PDF/file nguồn lớn, kết quả OCR, model weights/cache, Qdrant volume, `.venv/`, log.
 
-## Lưu ý quan trọng
+## Lưu ý
 
 - **Quota Groq Free** có hạn chế theo phút và theo ngày, tính theo từng model và có thể thay đổi. Kiểm tra trang Limits trong Groq Console trước mỗi buổi demo; khi hết quota thì dừng gọi và thông báo người dùng.
 - Chỉ câu hỏi và các đoạn bằng chứng cần thiết được gửi tới Groq; không gửi dữ liệu cá nhân.
