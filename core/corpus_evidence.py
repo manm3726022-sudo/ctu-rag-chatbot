@@ -11,7 +11,14 @@ def to_evidence(
         raise ValueError("Đoạn trích không thuộc văn bản đang dùng")
     if position < 1 or chunk.review_status != "checked":
         raise ValueError("Cần thứ tự từ 1 và đoạn đã đối chiếu")
-    source = next((f for f in doc.files if f.sha256 == chunk.sha256), None)
+    source = next(
+        (
+            f
+            for f in (*doc.files, doc.ingestion_source)
+            if f and f.sha256 == chunk.sha256
+        ),
+        None,
+    )
     if (
         source is None
         or source.source_kind == "summary"

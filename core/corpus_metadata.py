@@ -18,7 +18,9 @@ class Record(BaseModel):
 class FileRecord(Record):
     file_name: Text
     sha256: Hash
-    source_kind: Literal["pdf_text", "pdf_scan", "docx_scan", "summary"]
+    source_kind: Literal[
+        "pdf_text", "pdf_scan", "docx_text", "docx_scan", "html", "txt", "summary"
+    ]
     pages: Annotated[int, Field(ge=1)] | None
     origin: Text
 
@@ -43,6 +45,9 @@ class DocumentRecord(Record):
     relations: list[Relation]
     files: list[FileRecord] = Field(min_length=1)
     status: Literal["registered", "indexed", "archived"] = "registered"
+    ingestion_source: FileRecord | None = Field(
+        default=None, exclude_if=lambda source: source is None
+    )
 
 
 class Locator(Record):

@@ -62,6 +62,21 @@ ctu-rag-chatbot/
 └── README.md
 ```
 
+## Nạp dữ liệu nguồn
+
+Lệnh nạp đọc `docs/corpus/documents.json`, kiểm SHA-256 của tệp có sẵn trong `data/raw/` và tải tệp còn thiếu từ URL nguồn. QĐ 3266 dùng bản PDF scan chính thức được khai báo ở `ingestion_source`. Bản Word ảnh của TV1 vẫn có định danh và vị trí riêng cho bộ kiểm thử bàn giao. Cài Tesseract trên `PATH` với dữ liệu ngôn ngữ `vie` và `eng` để xử lý bản scan.
+
+```text
+python -m pip install -r requirements.txt
+python -m scripts.ingest --prepare-only
+docker compose up -d qdrant
+python -m scripts.ingest
+```
+
+Dùng `--document tt40` để chạy một văn bản. Có thể lặp `--document` để chọn nhiều văn bản. `--prepare-only` tạo các tệp `*.pages.jsonl`, `*.tables.jsonl` và `*.chunks.jsonl` trong `data/processed/` để soát kết quả. Đoạn trích tự động mang `review_status=pending`. Các hàng từ bảng QĐ 4932 đã đối chiếu được gắn `checked` theo đúng SHA-256 và vị trí trang.
+
+Lệnh nạp mặc định tạo vector BGE-M3 `dense` và `sparse` và ghi vào `QDRANT_COLLECTION`. Chạy lại cùng dữ liệu sẽ ghi đè điểm có cùng ID. TV3 cần lọc `status=indexed` và `review_status=checked` khi cung cấp bằng chứng đã duyệt, đồng thời quản lý việc hủy kích hoạt phiên bản cũ. Với nguồn HTML hoặc TXT, khai báo `pages: 1` cho tài liệu một trang logic. Với DOCX văn bản, chỉ dùng số trang theo ngắt trang rõ ràng trong tệp.
+
 ## Quy ước làm việc
 
 - `main` luôn chạy được; **không commit trực tiếp**. Mỗi việc một Issue, một branch, một Pull Request.
