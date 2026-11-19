@@ -1,0 +1,208 @@
+{
+  "$defs": {
+    "FileRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "file_name": {
+          "minLength": 1,
+          "title": "File Name",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "pdf_text",
+            "pdf_scan",
+            "docx_scan",
+            "summary"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "pages": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Pages"
+        },
+        "origin": {
+          "minLength": 1,
+          "title": "Origin",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_name",
+        "sha256",
+        "source_kind",
+        "pages",
+        "origin"
+      ],
+      "title": "FileRecord",
+      "type": "object"
+    },
+    "Relation": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "replaces",
+            "cites",
+            "implements",
+            "amends"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "target_number": {
+          "minLength": 1,
+          "title": "Target Number",
+          "type": "string"
+        },
+        "evidence": {
+          "minLength": 1,
+          "title": "Evidence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "target_number",
+        "evidence"
+      ],
+      "title": "Relation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "document_id": {
+      "minLength": 1,
+      "title": "Document Id",
+      "type": "string"
+    },
+    "document_number": {
+      "minLength": 1,
+      "title": "Document Number",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "issuer": {
+      "minLength": 1,
+      "title": "Issuer",
+      "type": "string"
+    },
+    "issued_on": {
+      "format": "date",
+      "title": "Issued On",
+      "type": "string"
+    },
+    "effective_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Effective Date"
+    },
+    "effective_from_term": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9]{4}-HK[123]$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Effective From Term"
+    },
+    "effective_until_term_exclusive": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9]{4}-HK[123]$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective Until Term Exclusive"
+    },
+    "applicability": {
+      "minLength": 1,
+      "title": "Applicability",
+      "type": "string"
+    },
+    "source_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source Url"
+    },
+    "relations": {
+      "items": {
+        "$ref": "#/$defs/Relation"
+      },
+      "title": "Relations",
+      "type": "array"
+    },
+    "files": {
+      "items": {
+        "$ref": "#/$defs/FileRecord"
+      },
+      "minItems": 1,
+      "title": "Files",
+      "type": "array"
+    },
+    "status": {
+      "default": "registered",
+      "enum": [
+        "registered",
+        "indexed",
+        "archived"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "document_id",
+    "document_number",
+    "title",
+    "issuer",
+    "issued_on",
+    "effective_date",
+    "effective_from_term",
+    "applicability",
+    "source_url",
+    "relations",
+    "files"
+  ],
+  "title": "DocumentRecord",
+  "type": "object"
+}

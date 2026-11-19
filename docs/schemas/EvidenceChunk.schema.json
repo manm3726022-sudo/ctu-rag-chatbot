@@ -1,0 +1,110 @@
+{
+  "properties": {
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "chunk_id": {
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "document_id": {
+      "title": "Document Id",
+      "type": "string"
+    },
+    "doc_title": {
+      "title": "Doc Title",
+      "type": "string"
+    },
+    "doc_number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Doc Number"
+    },
+    "article": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Article"
+    },
+    "section": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section"
+    },
+    "page_start": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page Start"
+    },
+    "page_end": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Page End"
+    },
+    "source_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Url"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "score": {
+      "default": 0.0,
+      "title": "Score",
+      "type": "number"
+    }
+  },
+  "required": [
+    "source_id",
+    "chunk_id",
+    "document_id",
+    "doc_title",
+    "text"
+  ],
+  "title": "EvidenceChunk",
+  "type": "object"
+}

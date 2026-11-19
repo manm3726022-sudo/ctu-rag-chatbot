@@ -1,0 +1,48 @@
+﻿group,item,criterion,rule,points,criterion_cap,group_cap,condition_or_evidence,page_start,page_end,document_id,sha256
+I,I.a,"Đi học đầy đủ, đúng giờ, nghiêm túc",điểm ban đầu,6,6,20,"Mỗi học phần bị cấm thi trừ 3, sàn 0",5,5,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Tham gia đề tài NCKH,mức,5,8,20,"Đề tài cấp đơn vị đào tạo hoặc tương đương trở lên, có quyết định của Phòng KH, CN & ĐMST. Loại bài tập, tiểu luận, đồ án môn học, luận văn",5,5,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Chủ nhiệm đề tài NCKH,mức,8,8,20,Nhánh nghiên cứu khoa học,5,5,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Có bài báo NCKH trong và ngoài nước,mức,8,8,20,Nhánh nghiên cứu khoa học,5,5,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Chứng chỉ tin học cơ bản và tương đương,mức,3,5,20,Một lần trong toàn khóa,5,5,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Chứng chỉ tin học nâng cao,mức,5,5,20,Một lần trong toàn khóa,5,5,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Ngoại ngữ không chuyên A1,mức,3,10,20,"Một lần toàn khóa. A1 hoặc TOEIC L&R 120–220, Bridge 30–42, TOEFL CBT 60, Cambridge KET 100–120",5,5,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Ngoại ngữ không chuyên A2,mức,5,10,20,"Một lần toàn khóa. A2 hoặc IELTS 4.0, TOEIC L&R 225–445, Bridge 43–75, TOEFL ITP 360–449, CBT 96, iBT 30, Cambridge KET hoặc PET 120–140",5,6,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Ngoại ngữ không chuyên B1,mức,7,10,20,"Một lần toàn khóa. B1 hoặc IELTS 4.5–5.0, TOEIC L&R 450–595, Bridge 76–89, TOEFL ITP 450–499, CBT 133, iBT 31–45, Cambridge KET 140–150, PET hoặc FCE 140–160",6,6,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Ngoại ngữ không chuyên từ B2,mức,10,10,20,"Một lần toàn khóa. Từ bậc 4, IELTS ≥5.5, TOEIC L&R ≥600, Bridge ≥90, TOEFL ITP ≥500, CBT ≥173, iBT ≥46, Cambridge PET/FCE/CAE ≥160 hoặc CPE ≥180",6,6,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.a,Tham gia CLB học thuật,mức,2,2,20,,6,6,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.b,"Không vi phạm quy chế thi, kiểm tra",điểm ban đầu,6,6,20,"Mỗi lần vi phạm trừ 3, sàn 0",6,6,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.b,"Tham gia kỳ thi chuyên ngành, Olympic",mức,2,4,20,,6,6,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.b,"Đạt giải kỳ thi chuyên ngành, Olympic",mức,4,4,20,"Cấp đại học, đơn vị đào tạo hoặc cấp cơ sở",6,6,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.c,"Có cố gắng, tiến bộ trong học tập",mức,2,2,20,"ĐTB kỳ sau cao hơn kỳ trước. Năm nhất kỳ 1 xét không có F. Ghi chú gốc: nếu ĐTBHK ≥3,6 thì cộng 2",7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.c,"ĐTBCHK từ 3,60",mức,8,8,20,,7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.c,"ĐTBCHK 3,20–3,59",mức,6,8,20,,7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.c,"ĐTBCHK 2,50–3,19",mức,4,8,20,,7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+I,I.c,"ĐTBCHK 2,00–2,49",mức,2,8,20,,7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+II,II.a,Không vi phạm và nghiêm túc chấp hành quy định,điểm ban đầu,15,15,25,"Mỗi lần vi phạm trừ 3, sàn 0",7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+II,II.b,"Tuyên truyền, vận động giữ gìn an ninh, vệ sinh, cảnh quan và nếp sống văn minh",mức,8,8,25,Có xác nhận của Đoàn cơ sở,7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+II,II.b,"Tuyên truyền, vận động giữ gìn an ninh, vệ sinh, cảnh quan và nếp sống văn minh",mức,8,8,25,"Có xác nhận của Đoàn ĐHCT, Hội Sinh viên",7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+II,II.b,Khảo sát ý kiến do ĐHCT tổ chức,mỗi lần,1,5,25,,7,7,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+III,III.a,"Tham gia đầy đủ hoạt động chính trị, xã hội, văn hóa, văn nghệ, thể thao",điểm ban đầu,12,12,20,"Lớp, Chi hội, Chi đoàn trở lên tổ chức. Vắng mỗi lần trừ 2 từ cấp đơn vị lớp trở lên. Với SV khuyết tật xét phù hợp sức khỏe theo phần dẫn III.a",8,8,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+III,III.b,Lực lượng nòng cốt phong trào,mức,3,5,20,"Cấp Bộ môn/Khoa, Chi đoàn, Chi hội",8,8,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+III,III.b,Lực lượng nòng cốt phong trào,mức,5,5,20,"Cấp ĐHCT, đơn vị đào tạo và tương đương",8,8,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+III,III.b,Khen thưởng phong trào,mức,6,10,20,Giấy khen cấp cơ sở và tương đương,8,8,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+III,III.b,Khen thưởng phong trào,mức,8,10,20,Giấy khen cấp đại học và tương đương,8,8,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+III,III.b,Khen thưởng phong trào,mức,10,10,20,Giấy khen cấp cao hơn,8,8,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+III,III.c,Tuyên truyền phòng chống tội phạm và tệ nạn xã hội,mỗi lần,3,6,20,,8,8,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+IV,IV.a,"Tuyên truyền chủ trương, chính sách, pháp luật trong cộng đồng",mức,8,8,15,Không vi phạm pháp luật. Vi phạm pháp luật thì điểm tiêu chí bằng 0,8,9,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+IV,IV.b,"Tham gia đội, nhóm vì cộng đồng",tối đa mỗi đợt,5,10,15,Công tác xã hội do đơn vị trong ĐHCT tổ chức hoặc phối hợp tổ chức,9,9,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+IV,IV.b,"Giúp đỡ bạn bè trong học tập, cuộc sống",mức,2,2,15,,9,9,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.a,"Cán bộ lớp, Đoàn, Hội, đội, nhóm thuộc dòng thứ nhất",mức,10,10,20,"BCH Hội SV ĐHCT, BCH Đoàn cơ sở trở lên, Liên chi hội trưởng, Đội trưởng/Chủ nhiệm CLB/Đội/Nhóm, Bí thư Chi đoàn, Chi hội trưởng, Lớp trưởng",9,9,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.a,Thành viên hoàn thành nhiệm vụ thuộc dòng thứ hai,mức,8,8,20,"BCH Liên chi hội SV, BCH Chi đoàn, BCH Chi hội SV, BCN CLB/Đội/Nhóm (trừ thành viên dòng trên), Lớp phó, Hội đồng tự quản KTX, Đội SV an ninh xung kích KTX, Nhà trưởng KTX, Hội đồng tự quản ngoại trú",9,9,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.a,Ban chuyên môn Đoàn các cấp hoặc HSV Việt Nam ĐHCT,mức,6,6,20,"Hoàn thành nhiệm vụ, có xác nhận của Đoàn hoặc Hội tương ứng",9,9,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.a,"Tổ trưởng, tổ phó lớp chuyên ngành",mức,3,3,20,Hoàn thành nhiệm vụ,9,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.b,"Tham gia, hỗ trợ hoạt động phong trào, sự kiện chung của trường",mỗi đợt,3,12,20,Có xác nhận của đơn vị tổ chức sự kiện,10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,Được kết nạp Đảng,mức,6,6,20,,10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,Được công nhận Đoàn viên ưu tú,mức,6,6,20,,10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,Danh hiệu SV 5 tốt cấp ĐHCT trở lên,mức,6,6,20,,10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,Danh hiệu SV 5 tốt cấp cơ sở,mức,4,4,20,,10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,Phân loại Đảng viên mức 1,mức,8,8,20,,10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,Phân loại Đảng viên mức 2,mức,5,5,20,,10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,Giấy khen về NCKH,mức,6,6,20,,10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,Đạt giải cuộc thi khởi nghiệp,mức,6,6,20,"Nhất, Nhì, Ba",10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142
+V,V.c,"Đạt giải Olympic, học thuật",mức,6,6,20,"Nhất, Nhì, Ba ở cấp trên ĐHCT và tương đương",10,10,qd4932,1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142

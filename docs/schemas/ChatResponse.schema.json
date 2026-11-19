@@ -1,0 +1,99 @@
+{
+  "$defs": {
+    "Citation": {
+      "properties": {
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "document": {
+          "title": "Document",
+          "type": "string"
+        },
+        "section": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Section"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "source_id",
+        "document"
+      ],
+      "title": "Citation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "answer": {
+      "title": "Answer",
+      "type": "string"
+    },
+    "citations": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
+    "need_clarification": {
+      "default": false,
+      "title": "Need Clarification",
+      "type": "boolean"
+    },
+    "abstain": {
+      "default": false,
+      "title": "Abstain",
+      "type": "boolean"
+    },
+    "risk_flag": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Risk Flag"
+    }
+  },
+  "required": [
+    "answer"
+  ],
+  "title": "ChatResponse",
+  "type": "object"
+}

@@ -1,0 +1,25 @@
+Các tệp mới thuộc phần TV1 có thể đưa vào nhánh riêng, tính từ gốc dự án.
+Chạy kiểm thử có đối chiếu tệp thật cần thêm data/raw và data/ocr/reference_only từ gói ZIP trên máy nhóm.
+
+BAT_DAU.md
+core/corpus_evidence.py
+core/corpus_metadata.py
+data/structured_rules/qd4932_rubric.csv
+docs/corpus/documents.json
+docs/corpus/tep_ban_giao.txt
+docs/critical/review_TV2_TV4.md
+docs/critical/source_review.md
+docs/schemas/ChatResponse.schema.json
+docs/schemas/ChunkRecord.schema.json
+docs/schemas/DocumentRecord.schema.json
+docs/schemas/EvidenceChunk.schema.json
+docs/test-log/corpus.txt
+docs/test-log/tv1-integration.txt
+eval/gold_corpus.csv
+eval/gold_corpus.jsonl
+requirements-tv1.txt
+scripts/register_corpus.py
+scripts/review_sources.py
+tests/fixtures/corpus_chunks.jsonl
+tests/test_corpus_metadata.py
+tests/test_tv1_integration.py

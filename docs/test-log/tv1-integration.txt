@@ -1,0 +1,29 @@
+TV1 – đối chiếu nguồn ngày 19/11/2026
+GitHub main và ZIP nhóm: 021955bde5699a7d8e57bfcf2ba6b0502a08f052
+40 tệp từ ZIP nhóm được đối chiếu nội dung từng byte.
+Python 3.12.14; dùng requirements-tv1.txt. Chạy offline sau khi cài phụ thuộc.
+python -m scripts.register_corpus --check-only
+5 văn bản, 6 tệp, 24 đoạn mẫu, 100 câu.
+python -m scripts.register_corpus --db demo.db
+5 văn bản, 6 tệp, 24 đoạn mẫu, 100 câu.
+Phiên bản mới ghi: 5
+python -m scripts.register_corpus --db demo.db
+5 văn bản, 6 tệp, 24 đoạn mẫu, 100 câu.
+Phiên bản mới ghi: 0
+python -m scripts.review_sources
+CTU-009 Tối đa em được đăng ký bao nhiêu tín chỉ một học kỳ?
+Phản hồi mẫu: Tối đa 20 tín chỉ trong một học kỳ [S1].
+S1 Quy định công tác học vụ dành cho sinh viên trình độ đại học hình thức chính quy (3266/QĐ-ĐHCT) Quy định Đ14.1 trang/ảnh 8 https://www.ctu.edu.vn/baocaocds2024/MC1_6/QD3266_QD_cong_tac_hoc_vu_danh_cho_SV_trinh_do_dai_hoc_hinh_thuc_chinh_quy_V3.pdf
+Cờ kiểm tra: []
+CTU-056 Tham gia 5 đợt đủ điều kiện V.b thì điểm riêng tiêu chí là bao nhiêu?
+Phản hồi mẫu: Năm đợt đủ điều kiện được tính tối đa 12 điểm ở V.b [S1].
+S1 Quy chế đánh giá kết quả rèn luyện dành cho sinh viên trình độ đại học hình thức chính quy (4932/QĐ-ĐHCT) Phụ lục V.b trang/ảnh 10 https://dsa.ctu.edu.vn/images/upload/vbanply/2026/VanBan/28-8-2026_Quyet_dinh_ban_hanh_quy_che_danh_gia_ren_luyen_2026signedsignedsignedsignedsigned.pdf
+Cờ kiểm tra: []
+python -m pytest -q tests/test_tv1_integration.py
+....                                                                     [100%]
+4 passed in 0.56s
+python -m pytest -q
+...................................                                      [100%]
+35 passed in 0.55s
+Phạm vi: ca thật về nguồn, dữ liệu truy xuất và câu sinh được kiểm soát trong test /chat; chưa gọi Groq hay đo retriever TV3.
+Đối chiếu bổ sung: validator trả [] với “Mỗi đợt được 12 điểm [S1].”; needs_verification trả False cho CTU-085.
