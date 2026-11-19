@@ -1,0 +1,84 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "document_id": {
+      "minLength": 1,
+      "title": "Document Id",
+      "type": "string"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Sha256",
+      "type": "string"
+    },
+    "section": {
+      "minLength": 1,
+      "title": "Section",
+      "type": "string"
+    },
+    "page_start": {
+      "minimum": 1,
+      "title": "Page Start",
+      "type": "integer"
+    },
+    "page_end": {
+      "minimum": 1,
+      "title": "Page End",
+      "type": "integer"
+    },
+    "chunk_id": {
+      "format": "uuid",
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "content": {
+      "minLength": 1,
+      "title": "Content",
+      "type": "string"
+    },
+    "review_status": {
+      "enum": [
+        "checked",
+        "pending"
+      ],
+      "title": "Review Status",
+      "type": "string"
+    },
+    "applies_from_cohort": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Applies From Cohort"
+    },
+    "applies_to_cohort": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Applies To Cohort"
+    }
+  },
+  "required": [
+    "document_id",
+    "sha256",
+    "section",
+    "page_start",
+    "page_end",
+    "chunk_id",
+    "content",
+    "review_status"
+  ],
+  "title": "ChunkRecord",
+  "type": "object"
+}

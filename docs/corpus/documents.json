@@ -1,0 +1,199 @@
+[
+  {
+    "document_id": "qd3266",
+    "document_number": "3266/QĐ-ĐHCT",
+    "title": "Quy định công tác học vụ dành cho sinh viên trình độ đại học hình thức chính quy",
+    "issuer": "Trường Đại học Cần Thơ",
+    "issued_on": "2024-08-15",
+    "effective_date": null,
+    "effective_from_term": "2024-HK2",
+    "effective_until_term_exclusive": null,
+    "applicability": "Sinh viên đại học chính quy của Trường. Một số khoản phân biệt khóa tuyển sinh.",
+    "source_url": "https://www.ctu.edu.vn/baocaocds2024/MC1_6/QD3266_QD_cong_tac_hoc_vu_danh_cho_SV_trinh_do_dai_hoc_hinh_thuc_chinh_quy_V3.pdf",
+    "relations": [
+      {
+        "kind": "replaces",
+        "target_number": "1813/QĐ-ĐHCT",
+        "evidence": "Quyết định, Điều 2, ảnh 2"
+      }
+    ],
+    "files": [
+      {
+        "file_name": "QD3266_QD_cong_tac_hoc_vu_danh_cho_SV_trinh_do_dai_hoc_hinh_thuc_chinh_quy_V3.docx",
+        "sha256": "daf538dca3c45e763d86bfac395f42a9b3d42af97a9b721257f50d44f607642d",
+        "source_kind": "docx_scan",
+        "pages": 21,
+        "origin": "Nhóm cung cấp"
+      }
+    ],
+    "status": "registered"
+  },
+  {
+    "document_id": "qd4932",
+    "document_number": "4932/QĐ-ĐHCT",
+    "title": "Quy chế đánh giá kết quả rèn luyện dành cho sinh viên trình độ đại học hình thức chính quy",
+    "issuer": "Đại học Cần Thơ",
+    "issued_on": "2026-09-03",
+    "effective_date": null,
+    "effective_from_term": "2026-HK1",
+    "effective_until_term_exclusive": null,
+    "applicability": "Sinh viên đại học chính quy đang học ở Đại học Cần Thơ.",
+    "source_url": "https://dsa.ctu.edu.vn/images/upload/vbanply/2026/VanBan/28-8-2026_Quyet_dinh_ban_hanh_quy_che_danh_gia_ren_luyen_2026signedsignedsignedsignedsigned.pdf",
+    "relations": [
+      {
+        "kind": "replaces",
+        "target_number": "6175/QĐ-ĐHCT",
+        "evidence": "Quyết định, Điều 2, tr. 1"
+      },
+      {
+        "kind": "cites",
+        "target_number": "40/2026/TT-BGDĐT",
+        "evidence": "Căn cứ tr. 1. Quy chế, Điều 5 và 6, tr. 4"
+      }
+    ],
+    "files": [
+      {
+        "file_name": "QD 4932 ban hanh quy che danh gia ket qua ren luyen danh cho SV he chinh quy.pdf",
+        "sha256": "1f580ae4dc745e916580499a90ccbcd13911cce8302abb7fa654abbf3c848142",
+        "source_kind": "pdf_text",
+        "pages": 10,
+        "origin": "Nhóm cung cấp"
+      }
+    ],
+    "status": "registered"
+  },
+  {
+    "document_id": "tt40",
+    "document_number": "40/2026/TT-BGDĐT",
+    "title": "Quy định về công tác sinh viên",
+    "issuer": "Bộ Giáo dục và Đào tạo",
+    "issued_on": "2026-05-15",
+    "effective_date": "2026-06-30",
+    "effective_from_term": null,
+    "effective_until_term_exclusive": null,
+    "applicability": "Đối tượng tại Điều 2, có ngoại lệ tại khoản 2 và 3. Áp dụng điều khoản chuyển tiếp tại Điều 31.",
+    "source_url": "https://chinhphu.vn/?docid=218142&pageid=27160&typegroupid=6",
+    "relations": [
+      {
+        "kind": "replaces",
+        "target_number": "50/2007/QĐ-BGDĐT",
+        "evidence": "Điều 30 khoản 2, tr. 17"
+      },
+      {
+        "kind": "replaces",
+        "target_number": "42/2007/QĐ-BGDĐT",
+        "evidence": "Điều 30 khoản 2, tr. 17"
+      },
+      {
+        "kind": "replaces",
+        "target_number": "10/2016/TT-BGDĐT",
+        "evidence": "Điều 30 khoản 2, tr. 17"
+      },
+      {
+        "kind": "replaces",
+        "target_number": "17/2017/TT-BLĐTBXH",
+        "evidence": "Điều 30 khoản 2, tr. 17"
+      },
+      {
+        "kind": "replaces",
+        "target_number": "60/2007/QĐ-BGDĐT",
+        "evidence": "Điều 30 khoản 2, tr. 17"
+      },
+      {
+        "kind": "replaces",
+        "target_number": "16/2015/TT-BGDĐT",
+        "evidence": "Điều 30 khoản 2, tr. 17"
+      },
+      {
+        "kind": "replaces",
+        "target_number": "39/2010/TT-BGDĐT",
+        "evidence": "Điều 30 khoản 2, tr. 17"
+      },
+      {
+        "kind": "replaces",
+        "target_number": "27/2009/TT-BGDĐT",
+        "evidence": "Điều 30 khoản 2, tr. 17"
+      },
+      {
+        "kind": "amends",
+        "target_number": "27/2011/TT-BGDĐT",
+        "evidence": "Điều 30 khoản 3, tr. 17. Sửa khoản 2 Điều 1 của Quy chế nội trú kèm Thông tư."
+      }
+    ],
+    "files": [
+      {
+        "file_name": "40-bgddt.pdf",
+        "sha256": "2f769581437b3bdeed8a3f3b2800cb76fd8b01311486f13b0f181253ce168ec8",
+        "source_kind": "pdf_text",
+        "pages": 18,
+        "origin": "Nhóm cung cấp"
+      }
+    ],
+    "status": "registered"
+  },
+  {
+    "document_id": "hd2427",
+    "document_number": "2427/HD-ĐHCT",
+    "title": "Hướng dẫn thực hiện công tác cố vấn học tập",
+    "issuer": "Đại học Cần Thơ",
+    "issued_on": "2026-07-30",
+    "effective_date": null,
+    "effective_from_term": null,
+    "effective_until_term_exclusive": null,
+    "applicability": "Cố vấn học tập và các đơn vị có liên quan. Hướng dẫn theo năm học hoặc số tín chỉ tích lũy.",
+    "source_url": null,
+    "relations": [
+      {
+        "kind": "implements",
+        "target_number": "3873/QĐ-ĐHCT",
+        "evidence": "Mục I.1, tr. 1"
+      }
+    ],
+    "files": [
+      {
+        "file_name": "30-7-2026-Huong-dan-thuc-hien-cong-tac-CVHT-3072026.signed.signed.signed.pdf",
+        "sha256": "3b9c7fadf0a4f10b592589ab58e4ec012b847cb94b25e354d526152d3dac9896",
+        "source_kind": "pdf_text",
+        "pages": 7,
+        "origin": "Nhóm cung cấp"
+      }
+    ],
+    "status": "registered"
+  },
+  {
+    "document_id": "qd5976",
+    "document_number": "5976/QĐ-ĐHCT",
+    "title": "Quy định về thực hiện nếp sống văn minh trong Trường Đại học Cần Thơ",
+    "issuer": "Trường Đại học Cần Thơ",
+    "issued_on": "2013-12-23",
+    "effective_date": "2013-12-23",
+    "effective_from_term": null,
+    "effective_until_term_exclusive": null,
+    "applicability": "Đối tượng làm việc, nghiên cứu, học tập tại Trường theo Điều 1 của Quy định.",
+    "source_url": "https://dsa.ctu.edu.vn/images/upload/vbanply/%284%29%20Quan%20ly%20sinh%20vien/QD-Banhanh-QD5976-NepsongVanminhTruongDHCT0001.pdf",
+    "relations": [
+      {
+        "kind": "replaces",
+        "target_number": "1811/QĐ-ĐHCT",
+        "evidence": "Quyết định, Điều 2, tr. 1"
+      }
+    ],
+    "files": [
+      {
+        "file_name": "5976.pdf",
+        "sha256": "0eff4f3290accee0ce86873011d572c2c7010d91b31419f847aead5190d9612b",
+        "source_kind": "pdf_scan",
+        "pages": 7,
+        "origin": "PDF đối chiếu từ website Phòng CTSV ĐHCT"
+      },
+      {
+        "file_name": "Nếp_sống_văn_minh_ĐHCT_(QĐ_5976)).docx",
+        "sha256": "2cb860029abf9858f5bae36964aade785c381489c51d9c69231325917118885d",
+        "source_kind": "summary",
+        "pages": null,
+        "origin": "Nhóm cung cấp"
+      }
+    ],
+    "status": "registered"
+  }
+]
