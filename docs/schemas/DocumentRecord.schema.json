@@ -17,7 +17,10 @@
           "enum": [
             "pdf_text",
             "pdf_scan",
+            "docx_text",
             "docx_scan",
+            "html",
+            "txt",
             "summary"
           ],
           "title": "Source Kind",
@@ -188,6 +191,17 @@
       ],
       "title": "Status",
       "type": "string"
+    },
+    "ingestion_source": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FileRecord"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [

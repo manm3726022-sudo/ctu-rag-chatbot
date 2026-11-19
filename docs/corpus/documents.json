@@ -26,6 +26,13 @@
         "origin": "Nhóm cung cấp"
       }
     ],
+    "ingestion_source": {
+      "file_name": "QD3266_QD_cong_tac_hoc_vu_danh_cho_SV_trinh_do_dai_hoc_hinh_thuc_chinh_quy_V3.pdf",
+      "sha256": "eab7bcae4c3e453cac85d9bb46ce2bf62e9952c02f95855ffa17bc3e20b3ff4d",
+      "source_kind": "pdf_scan",
+      "pages": 21,
+      "origin": "PDF chính thức từ website Đại học Cần Thơ"
+    },
     "status": "registered"
   },
   {
@@ -141,7 +148,7 @@
     "effective_from_term": null,
     "effective_until_term_exclusive": null,
     "applicability": "Cố vấn học tập và các đơn vị có liên quan. Hướng dẫn theo năm học hoặc số tín chỉ tích lũy.",
-    "source_url": null,
+    "source_url": "https://dsa.ctu.edu.vn/images/upload/vbanply/2026/VanBan/30-7-2026_Huong_dan_thuc_hien_cong_tac_CVHT_3072026signedsignedsigned.pdf",
     "relations": [
       {
         "kind": "implements",
