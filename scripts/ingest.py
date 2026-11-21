@@ -11,6 +11,7 @@ import requests
 
 from core import config
 from core.corpus_metadata import DocumentRecord
+from ingestion.approvals import apply_approved, read_approved
 from ingestion.chunking import parse_pages
 from ingestion.extract import extract_pages
 from ingestion.rubric import read_rubric
@@ -29,11 +30,11 @@ def _write_jsonl(path: Path, rows) -> None:
         temp.replace(path)
 
 
-def _prepare(doc, source, path, output):
+def _prepare(doc, source, path, output, approved=frozenset()):
     pages = extract_pages(path, source)
     chunks, tables = parse_pages(doc, source, pages)
     reviewed, rules = read_rubric(RUBRIC, doc, source)
-    chunks += reviewed
+    chunks = apply_approved(chunks + reviewed, approved)
     prefix = output / f"{doc.document_id}-{source.sha256}"
     _write_jsonl(
         prefix.with_suffix(".pages.jsonl"),
@@ -48,7 +49,12 @@ def _prepare(doc, source, path, output):
 
 
 def run(
-    manifest: Path, raw_dir: Path, output: Path, selected, prepare_only: bool
+    manifest: Path,
+    raw_dir: Path,
+    output: Path,
+    selected,
+    prepare_only: bool,
+    approved=frozenset(),
 ) -> int:
     from pydantic import TypeAdapter
 
@@ -89,7 +95,7 @@ def run(
     prepared = []
     for doc, source, path in sources:
         try:
-            chunks = _prepare(doc, source, path, output)
+            chunks = _prepare(doc, source, path, output, approved)
         except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
             raise ValueError(f"{doc.document_id} ({source.file_name}): {exc}") from exc
         prepared.append((doc, source, chunks))
@@ -131,6 +137,12 @@ def main() -> None:
         help="Process only this registered document (repeatable)",
     )
     parser.add_argument(
+        "--approved",
+        type=Path,
+        default=config.APPROVED_PATH,
+        help="Sổ duyệt đoạn (CSV): đoạn có trong sổ được ghi là checked thay vì pending",
+    )
+    parser.add_argument(
         "--prepare-only",
         action="store_true",
         help="Write page, table and chunk JSONL without indexing",
@@ -143,6 +155,7 @@ def main() -> None:
             args.output_dir,
             args.document,
             args.prepare_only,
+            read_approved(args.approved),
         )
     except (OSError, ValueError, ImportError) as exc:
         parser.exit(1, f"Ingestion failed: {exc}\n")
