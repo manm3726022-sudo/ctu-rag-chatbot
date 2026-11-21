@@ -4,9 +4,13 @@ from core import config
 
 if config.RETRIEVER == 'real':
     # retriever.py do TV3 cung cấp (runbook §9.2)
-    from backend.services.retriever import retrieve
+    from backend.services.retriever import RetrievalError, retrieve  # noqa: F401
 else:
     from backend.services.retriever_mock import retrieve  # noqa: F401
+
+    class RetrievalError(Exception):
+        '''Chỉ để backend/main.py bắt lỗi giống nhau ở cả hai chế độ (mock không bao giờ ném).'''
+
 
 MODE = config.RETRIEVER
 
@@ -15,9 +19,8 @@ def warmup():
     '''Nạp model local trước để câu hỏi đầu tiên không chậm (chỉ khi dùng retriever thật).'''
     if MODE != 'real':
         return
-    from core.embedding import encode
-
     from backend.services.reranker import _reranker
+    from core.embedding import encode
 
     encode(['khởi động'])
     _reranker()
@@ -27,9 +30,8 @@ def health() -> dict:
     if MODE != 'real':
         return {'retriever': 'mock'}
     try:
-        from backend.services.retriever import client
+        from backend.services.retriever import stats
 
-        n = client.count(config.COLLECTION, exact=False).count
-        return {'retriever': 'real', 'qdrant': 'ok', 'points': n}
+        return {'retriever': 'real', 'qdrant': 'ok', **stats()}
     except Exception as e:  # noqa: BLE001 (health check không được làm sập API)
         return {'retriever': 'real', 'qdrant': 'down', 'error': type(e).__name__}
