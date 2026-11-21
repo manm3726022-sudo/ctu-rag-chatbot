@@ -1,3 +1,8 @@
+# Cài:  python -m pip install -r requirements.txt     (Python 3.11 hoặc 3.12)
+# Bản đã chạy được trên máy nhóm: requirements.lock.txt (pip freeze) - dùng khi cần tái hiện y hệt môi trường.
+#
+# FlagEmbedding cần PyTorch. Máy không có GPU nên cài bản CPU (nhẹ hơn nhiều) TRƯỚC khi chạy lệnh trên:
+#   python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn[standard]
 pydantic

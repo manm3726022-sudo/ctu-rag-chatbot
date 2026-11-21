@@ -1,0 +1,100 @@
+chunk_id,document_id,section,page_start,page_end,reviewer,reviewed_on
+fe7dd170-3230-5a46-9830-f8d1b1f5b531,hd2427,Hướng dẫn,1,1,TV3,2026-11-21
+10a37441-4a35-5f4b-89c7-eb567eec7881,hd2427,Hướng dẫn > Mục I,1,1,TV3,2026-11-21
+ceadd15b-431d-5b7a-920a-87f2967d9ca6,hd2427,Hướng dẫn > Mục I > 1,1,1,TV3,2026-11-21
+985efbc4-85b2-5020-87cc-563c50fffb52,hd2427,Hướng dẫn > Mục I > 2,1,1,TV3,2026-11-21
+b8e42e49-772e-50c7-a4cf-e921f10d1cbb,hd2427,Hướng dẫn > Mục I > 3,1,2,TV3,2026-11-21
+1f4cfe4b-9fbc-5643-9351-8c291994d736,hd2427,Hướng dẫn > Mục I > 4,2,2,TV3,2026-11-21
+e6079490-3628-53cf-95b4-276606add520,hd2427,Hướng dẫn > Mục I > 4.1,2,3,TV3,2026-11-21
+87477c7d-7460-5af6-a870-5622c409f4a2,hd2427,Hướng dẫn > Mục I > 4.1,2,3,TV3,2026-11-21
+db69721c-3622-5f44-9dfd-321040df2f12,hd2427,Hướng dẫn > Mục I > 6,6,7,TV3,2026-11-21
+18e85d1e-630e-5a28-8c68-011840609425,hd2427,Hướng dẫn > Mục I > 6,7,7,TV3,2026-11-21
+10c1cd48-7e01-5009-a491-bd9785148f3f,qd3266,Quyết định > Điều 2,2,2,TV3,2026-11-21
+6132d9d8-8e52-5987-8e9b-969a67059004,qd3266,Quyết định > Điều 3,2,3,TV3,2026-11-21
+193717ad-eda3-5c97-87b7-7cbe8908027c,qd3266,Quy định,3,3,TV3,2026-11-21
+faa268ae-8b88-58e4-b20c-008386906b29,qd3266,Quy định > Chương I,3,3,TV3,2026-11-21
+79dd71b3-c55f-51d0-ac85-b10cd182154d,qd3266,Quy định > Chương I > Điều 1,3,3,TV3,2026-11-21
+f81cdb6e-574d-519d-8cee-3359c8227982,qd3266,Quy định > Chương I > Điều 2,3,3,TV3,2026-11-21
+7b29a07a-d788-51fc-be79-2f1b3671f729,qd3266,Quy định > Chương I > Điều 3,3,4,TV3,2026-11-21
+7d8fbc9f-d26a-5943-b048-7eef6059fa9d,qd3266,Quy định > Chương I > Điều 3,4,4,TV3,2026-11-21
+fb81ad5c-7cea-50ce-93b9-6bc2048730ad,qd3266,Quy định > Chương I > Điều 4,4,4,TV3,2026-11-21
+e0f25846-cd00-5fda-a41e-3aa2881719a9,qd3266,Quy định > Chương I > Điều 5,4,5,TV3,2026-11-21
+7a990e96-e086-5cfe-a601-e7a7c85c78b8,qd3266,Quy định > Chương I > Điều 6,5,5,TV3,2026-11-21
+203b2531-e330-502b-a1e1-e0ad2b199fd5,qd3266,Quy định > Chương I > Điều 7,5,6,TV3,2026-11-21
+3d2c5cf6-92bc-5d0a-b12e-fd1a0005f696,qd3266,Quy định > Chương I > Điều 8,6,6,TV3,2026-11-21
+6504ac3b-48cb-556f-900d-97951baa3de9,qd3266,Quy định > Chương I > Điều 9,6,6,TV3,2026-11-21
+79396f90-e676-52fc-a92f-fb8ea69d25db,qd3266,Quy định > Chương I > Điều 9,6,7,TV3,2026-11-21
+46cffb85-0e8d-5afa-88ab-93be1fb5e031,qd3266,Quy định,7,7,TV3,2026-11-21
+1f949583-6d20-550c-8b3e-a391340953e2,qd3266,Quy định > Điều 10,7,7,TV3,2026-11-21
+fa447b95-5ffc-5ac4-b284-ba84534c138f,qd3266,Quy định > Điều 11,7,7,TV3,2026-11-21
+18c87057-adea-5f2c-a7d4-c8e57a7f6721,qd3266,Quy định > Điều 12,7,8,TV3,2026-11-21
+b2f4a849-1596-54a6-b818-9a908d7dc82e,qd3266,Quy định > Chương II,8,8,TV3,2026-11-21
+7aeceab2-8f6d-50b7-b680-15036ceb6411,qd3266,Quy định > Chương II > Điều 13,8,8,TV3,2026-11-21
+b15def94-8dc5-5260-8d52-3cb0c893f270,qd3266,Quy định > Chương II > Điều 14,8,9,TV3,2026-11-21
+b379fcf4-2dcb-5fde-bf2b-da6313e00aff,qd3266,Quy định > Điều 12,8,8,TV3,2026-11-21
+e2f06f0b-55c1-5413-860e-5b6e370a8c07,qd3266,Quy định > Chương II > Điều 15,9,9,TV3,2026-11-21
+2f81ceb0-e063-5e4d-a529-e8cba56e67b6,qd3266,Quy định > Chương II > Điều 16,9,9,TV3,2026-11-21
+2eea3c8a-16a4-52d9-b2f6-451b20e68c38,qd3266,Quy định > Chương II > Điều 17,9,10,TV3,2026-11-21
+5e5d4d40-b1c7-5970-8309-52615b2c40f9,qd3266,Quy định > Chương II > Điều 18,10,10,TV3,2026-11-21
+f0afee01-6eb7-52bb-9a83-eaadef26dca8,qd3266,Quy định > Chương II > Điều 18,10,11,TV3,2026-11-21
+fae0851b-dc82-542f-92ea-aaea9008c024,qd3266,Quy định > Chương II > Điều 20,12,13,TV3,2026-11-21
+7291d3b1-16a4-54df-badd-da239cefd8c3,qd3266,Quy định > Chương II > Điều 20,13,13,TV3,2026-11-21
+d1326b40-35dc-59bc-b528-e265aeb1b8ab,qd3266,Quy định > Chương II > Điều 22,13,14,TV3,2026-11-21
+65f98e1b-1706-5529-aa60-04e77800a197,qd3266,Quy định > Chương II > Điều 23,15,16,TV3,2026-11-21
+9bd6c0ca-989b-54e6-9f02-e281562b1818,qd3266,Quy định > Chương II > Điều 26,16,16,TV3,2026-11-21
+537f03d3-389e-5979-8050-766211f9fcd2,qd3266,Quy định > Chương II > Điều 27,16,17,TV3,2026-11-21
+5027d1de-fd09-514e-9d36-27ee97c40abb,qd3266,Quy định > Chương IV,19,19,TV3,2026-11-21
+7e02feef-d90c-5d2b-98e9-e42ab69db4ab,qd3266,Quy định > Chương IV > Điều 31,19,19,TV3,2026-11-21
+f84ac9c0-35bf-5fd1-bf84-af7ec8e1e530,qd3266,Quy định > Chương IV > Điều 32,19,20,TV3,2026-11-21
+fa79948e-d370-5da4-8347-619e66e45cdb,qd4932,Quyết định,1,1,TV3,2026-11-21
+17ab4ae4-0017-5e9b-9c8e-8a206252d253,qd4932,Quyết định > Điều 1,1,1,TV3,2026-11-21
+b577d1ae-72f0-5736-a95b-ce0778a9792a,qd4932,Quyết định > Điều 2,1,1,TV3,2026-11-21
+9ec70e39-efef-5b86-8876-4bb29037683c,qd4932,Quyết định > Điều 3,1,2,TV3,2026-11-21
+52563152-3040-5d33-9fa3-6a2f1ae90503,qd4932,Quy chế,2,2,TV3,2026-11-21
+c56ccc7b-3eb5-592f-998a-b54c3e07e97b,qd4932,Quy chế > Điều 1,2,2,TV3,2026-11-21
+b04d278c-c839-5250-a2b8-bcf3cd7bc176,qd4932,Quy chế > Điều 2,2,2,TV3,2026-11-21
+e20c1dac-dc62-57ad-b823-e02d604d98ae,qd4932,Quy chế > Điều 3,2,3,TV3,2026-11-21
+c853d0c3-8b70-5443-a316-22ed4dca8b3f,qd4932,Quy chế > Điều 4,3,4,TV3,2026-11-21
+95ea7834-003a-5a1e-9285-f6175fa4778c,qd4932,Quy chế > Điều 4,4,4,TV3,2026-11-21
+7fe44571-5982-5044-9fdb-72c91f279ce1,qd4932,Quy chế > Điều 5,4,4,TV3,2026-11-21
+7110a0fc-c14b-54a4-9dc5-bb03bd96943b,qd4932,Quy chế > Điều 6,4,4,TV3,2026-11-21
+e8676d3c-05da-523c-94c1-f499241611b0,qd4932,Quy chế > Điều 7,4,4,TV3,2026-11-21
+e989f314-502b-5e8b-9d98-38fb186f5d1c,qd4932,Phụ lục,5,5,TV3,2026-11-21
+d7f8b30d-fc1a-58d0-add6-0c0583dfafa5,qd4932,Phụ lục > I,5,6,TV3,2026-11-21
+6ad5c1c6-eea7-5572-bcef-ca85a0ce5475,qd4932,Phụ lục > I,6,7,TV3,2026-11-21
+fdd7b5c2-aae2-5359-bfda-61770056992c,qd4932,Phụ lục > II,7,8,TV3,2026-11-21
+068316ec-5116-5bf6-aaaa-c83a09c73834,qd4932,Phụ lục > c,7,7,TV3,2026-11-21
+17b0099a-cc0e-5316-a574-225d619bd791,qd4932,Phụ lục > III,8,8,TV3,2026-11-21
+62537c65-9b12-560b-bc8e-3f72df40b46f,qd4932,Phụ lục > IV,8,9,TV3,2026-11-21
+d368e995-bf34-5120-8b3d-8206da67c6aa,qd4932,Phụ lục > c,8,8,TV3,2026-11-21
+d86e42e7-6f64-5317-8624-4e20ce9b8717,qd4932,Phụ lục > V,9,10,TV3,2026-11-21
+41668b33-c6f3-54d5-b6f9-6e492519eaeb,qd4932,Phụ lục > c,10,10,TV3,2026-11-21
+b5699867-eb42-5da6-ab11-a1eafe5c4562,qd5976,Quyết định,1,1,TV3,2026-11-21
+55385aca-84c3-57c6-9ac0-ad17bcf5828c,qd5976,Quyết định > Điều 1,1,1,TV3,2026-11-21
+7b0feb41-6078-5631-bfca-3e144c648afc,qd5976,Quyết định > Điều 2,1,1,TV3,2026-11-21
+aef02771-c282-5573-a300-99beafbd30d0,qd5976,Quyết định > Điều 3,1,2,TV3,2026-11-21
+b15386d8-84f3-5254-9616-3f072bb199b4,qd5976,Quy định,2,2,TV3,2026-11-21
+b45b2930-5a69-5f97-b146-eed3f2ca5622,qd5976,Quy định,2,2,TV3,2026-11-21
+5b359b52-9989-5f2b-8434-dacfc20f1ae2,qd5976,Quy định > Chương I,2,2,TV3,2026-11-21
+2c8403c1-2791-549e-9070-4875c2a05d15,qd5976,Quy định > Chương I,2,2,TV3,2026-11-21
+c74ade88-e673-57fa-808d-499f984a0e77,qd5976,Quy định > Chương I > Điều 3,2,2,TV3,2026-11-21
+1dddeef0-bae4-55c8-8bbb-28df31a68a37,qd5976,Quy định > Chương I > Điều 4,2,3,TV3,2026-11-21
+35e9586e-f774-5703-af2c-6e5309fb979e,qd5976,Quy định > Điều 1,2,2,TV3,2026-11-21
+0b6e2387-4dac-575b-a460-ebdf447f5254,qd5976,Quy định > Điều 2,2,2,TV3,2026-11-21
+cee2dd66-bb60-5f00-b7e7-17c53dbe7a60,tt40,Thông tư,1,1,TV3,2026-11-21
+e20991b7-095d-5097-bd6c-40fab056b29a,tt40,Thông tư > Chương I,1,1,TV3,2026-11-21
+71300214-c11b-5352-af7e-0161e7b8add9,tt40,Thông tư > Chương I > Điều 1,1,1,TV3,2026-11-21
+56d48023-40a1-52ef-b735-ac25fb1a0903,tt40,Thông tư > Chương I > Điều 2,1,2,TV3,2026-11-21
+8fd4d9e4-9e3e-5a26-b49f-e46481d55fbd,tt40,Thông tư > Chương II > Mục 3 > Điều 14,6,7,TV3,2026-11-21
+db275de5-de06-502c-906f-615a7d8288dd,tt40,Thông tư > Chương II > Mục 3 > Điều 15,7,7,TV3,2026-11-21
+473a3354-b3bc-5a5d-aad0-4ff397980607,tt40,Thông tư > Chương II > Mục 3 > Điều 16,7,7,TV3,2026-11-21
+85f657d4-9098-59b1-b31d-0102eeb4f278,tt40,Thông tư > Chương II > Mục 4,7,7,TV3,2026-11-21
+f3dd542a-6d53-55bc-b7ac-e4ce4975d10c,tt40,Thông tư > Chương II > Mục 4 > Điều 17,7,8,TV3,2026-11-21
+6f8e425b-5110-5fe0-b05d-0d8f96f3c323,tt40,Thông tư > Chương II > Mục 4 > Điều 17,8,8,TV3,2026-11-21
+64a731b5-6aba-5722-9948-d06832712a39,tt40,Thông tư > Chương II > Mục 4 > Điều 18,9,9,TV3,2026-11-21
+878fa85b-b55d-5fd8-b2b6-9de55113a919,tt40,Thông tư > Chương II > Mục 4 > Điều 18,9,10,TV3,2026-11-21
+443a4793-fe79-5db2-b3a2-7cb2f3f9b2b5,tt40,Thông tư > Chương IV,17,17,TV3,2026-11-21
+98e3171f-09af-58ca-b323-f1a6c3f145e6,tt40,Thông tư > Chương IV > Điều 30,17,17,TV3,2026-11-21
+e4202437-f666-55c5-8723-42f155973e16,tt40,Thông tư > Chương IV > Điều 30,17,17,TV3,2026-11-21
+d8cd60e2-2c70-52f4-b4a6-a23c328b39a9,tt40,Thông tư > Chương IV > Điều 31,17,18,TV3,2026-11-21
+c3dde041-9b04-50b8-93cd-2d9441e76215,tt40,Thông tư > Chương IV > Điều 32,18,18,TV3,2026-11-21

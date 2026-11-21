@@ -4,6 +4,7 @@ from qdrant_client import models
 from qdrant_client.http.exceptions import UnexpectedResponse
 
 from core import config
+from core.embedding import sparse_from_lexical
 
 DENSE = "dense"
 SPARSE = "sparse"
@@ -35,9 +36,7 @@ def encode(model, doc, source, chunks) -> list[models.PointStruct]:
         for chunk, dense, lexical in zip(
             batch, vectors["dense_vecs"], vectors["lexical_weights"], strict=True
         ):
-            weights = sorted(
-                (int(token), float(weight)) for token, weight in lexical.items()
-            )
+            indices, values = sparse_from_lexical(lexical)  # dùng chung với phía truy vấn
             # Pending content can be inspected in Qdrant; the approved retrieval filter uses review_status.
             payload = {
                 **metadata,
@@ -53,10 +52,7 @@ def encode(model, doc, source, chunks) -> list[models.PointStruct]:
                     payload=payload,
                     vector={
                         DENSE: [float(value) for value in dense],
-                        SPARSE: models.SparseVector(
-                            indices=[index for index, _ in weights],
-                            values=[weight for _, weight in weights],
-                        ),
+                        SPARSE: models.SparseVector(indices=indices, values=values),
                     },
                 )
             )
