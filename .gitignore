@@ -1,24 +1,37 @@
+# --- Bí mật ---
 .env
-.venv/
+.env.*
+!.env.example
 
+# --- Môi trường Python / công cụ ---
+.venv/
 __pycache__/
+*.py[cod]
 .pytest_cache/
 .ruff_cache/
+.DS_Store
 
+# --- Dữ liệu nguồn, OCR, kết quả xử lý: giữ riêng ở máy nhóm (gói bàn giao ZIP) ---
 data/raw/**
 data/ocr/**
 data/processed/**
-!data/raw/.gitkeep
-!data/ocr/.gitkeep
-!data/processed/.gitkeep
-
+# Registry SQLite và bản sao lưu: không commit (README.md trong thư mục được giữ lại)
 data/registry/*
 !data/registry/README.md
+*.db
+*.sqlite
+backups/
 
+# --- Duyệt đoạn: file làm việc không commit, SỔ DUYỆT thì commit ---
+data/review/*.csv
+!data/review/approved_chunks.csv
+
+# --- Bảng quy tắc có cấu trúc: PHẢI commit (qd4932_rubric.csv, ...) ---
+!data/structured_rules/*.csv
+
+# --- Qdrant, model, log, kết quả đánh giá ---
 qdrant_storage/
 models/
-logs/
-backups/
-eval/results/
 *.log
-*.db
+logs/
+eval/results/

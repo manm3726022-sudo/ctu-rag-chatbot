@@ -1,1 +1,3 @@
-Registry SQLite (registry.db) không được commit; thư mục này chỉ giữ file README này.
+# Registry
+
+Thư mục này chứa `registry.db` (SQLite, tạo bởi `python -m scripts.register_corpus`). File `.db` không được commit.
