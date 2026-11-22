@@ -1,4 +1,4 @@
-'''Đếm token (runbook §6.2). Chưa tải được tokenizer BGE-M3 thì ước lượng theo số từ.'''
+'''Đếm token evidence theo tokenizer đã cấu hình, hoặc ước lượng theo số từ.'''
 from functools import lru_cache
 
 from core import config
@@ -9,7 +9,7 @@ def _tok():
     try:
         from transformers import AutoTokenizer
 
-        return AutoTokenizer.from_pretrained(config.EMBED_MODEL)
+        return AutoTokenizer.from_pretrained(config.EVIDENCE_TOKENIZER_MODEL)
     except Exception:  # noqa: BLE001 (chưa có transformers thì ước lượng)
         return None
 

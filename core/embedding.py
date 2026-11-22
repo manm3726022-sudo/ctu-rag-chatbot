@@ -1,4 +1,4 @@
-'''Mã hóa văn bản bằng BGE-M3 (dense 1.024 chiều + sparse) cho phía truy vấn.
+'''Mã hóa dense và sparse bằng cùng model cho truy vấn và ingestion.
 
 Quy ước PHẢI giống hệt ingestion/index.py (đây là nguồn duy nhất cho phần sparse):
   - cùng model và use_fp16 (config.EMBED_MODEL, config.USE_FP16);
@@ -25,13 +25,20 @@ def sparse_from_lexical(lexical) -> tuple[list, list]:
 
 @lru_cache(maxsize=1)
 def get_model():
+    if config.EMBED_BACKEND == 'mgte':
+        from core.mgte import MgteEmbedder
+
+        return MgteEmbedder(config.EMBED_MODEL, use_fp16=config.USE_FP16)
+    if config.EMBED_BACKEND != 'bge-m3':
+        raise ValueError(f'Unknown EMBED_BACKEND: {config.EMBED_BACKEND}')
+
     from FlagEmbedding import BGEM3FlagModel
 
     return BGEM3FlagModel(config.EMBED_MODEL, use_fp16=config.USE_FP16)
 
 
 def encode(texts, model=None, max_length=None) -> list:
-    '''Mã hóa danh sách văn bản -> list[Encoded]. BGE-M3 không dùng tiền tố cho truy vấn.'''
+    '''Mã hóa danh sách văn bản -> list[Encoded].'''
     texts = list(texts)
     if not texts:
         return []

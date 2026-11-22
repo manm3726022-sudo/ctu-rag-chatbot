@@ -12,7 +12,7 @@ import requests
 from core import config
 from core.corpus_metadata import DocumentRecord
 from ingestion.approvals import apply_approved, read_approved
-from ingestion.chunking import parse_pages
+from ingestion.chunking import parse_pages, split_for_phoranker
 from ingestion.extract import extract_pages
 from ingestion.rubric import read_rubric
 from ingestion.sources import acquire
@@ -30,17 +30,35 @@ def _write_jsonl(path: Path, rows) -> None:
         temp.replace(path)
 
 
-def _prepare(doc, source, path, output, approved=frozenset()):
-    pages = extract_pages(path, source)
+def _build_chunks(doc, source, pages, approved):
     chunks, tables = parse_pages(doc, source, pages)
     reviewed, rules = read_rubric(RUBRIC, doc, source)
-    chunks = apply_approved(chunks + reviewed, approved)
+    if config.CHUNKING_MODE == "phoranker":
+        if config.RERANK_BACKEND != "phoranker":
+            raise ValueError("CHUNKING_MODE=phoranker requires RERANK_BACKEND=phoranker")
+        from core.pho_text import format_passage, segment, tokenizer
+
+        pho_tokenizer = tokenizer(config.RERANK_MODEL)
+
+        def count_passage(section, text):
+            passage = segment(format_passage(doc.document_number, section, text))
+            return len(pho_tokenizer.encode(passage, add_special_tokens=False, verbose=False))
+
+        chunks = split_for_phoranker(doc, source, apply_approved(chunks, approved), count_passage)
+    elif config.CHUNKING_MODE != "legacy":
+        raise ValueError(f"Unknown CHUNKING_MODE: {config.CHUNKING_MODE}")
+    return apply_approved(chunks + reviewed, approved), tables + rules
+
+
+def _prepare(doc, source, path, output, approved=frozenset()):
+    pages = extract_pages(path, source)
+    chunks, tables = _build_chunks(doc, source, pages, approved)
     prefix = output / f"{doc.document_id}-{source.sha256}"
     _write_jsonl(
         prefix.with_suffix(".pages.jsonl"),
         ({"page": index, "text": text} for index, text in enumerate(pages, 1)),
     )
-    _write_jsonl(prefix.with_suffix(".tables.jsonl"), tables + rules)
+    _write_jsonl(prefix.with_suffix(".tables.jsonl"), tables)
     _write_jsonl(
         prefix.with_suffix(".chunks.jsonl"),
         (chunk.model_dump(mode="json") for chunk in chunks),
@@ -103,12 +121,12 @@ def run(
     if prepare_only:
         return 0
 
-    from FlagEmbedding import BGEM3FlagModel
     from qdrant_client import QdrantClient
 
+    from core.embedding import get_model
     from ingestion.index import encode, upsert
 
-    model = BGEM3FlagModel(config.EMBED_MODEL, use_fp16=config.USE_FP16)
+    model = get_model()
     points = [
         point
         for doc, source, chunks in prepared

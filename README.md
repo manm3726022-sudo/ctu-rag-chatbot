@@ -103,6 +103,12 @@ curl http://127.0.0.1:8000/health                           # xem số điểm c
 
 Mặc định (`RETRIEVE_REQUIRE_CHECKED=true`) chatbot chỉ dùng đoạn đã duyệt làm bằng chứng. Khi chưa duyệt xong các đoạn `pending`, câu hỏi ngoài bảng rèn luyện QĐ 4932 sẽ bị từ chối; đặt `false` để thử nghiệm.
 
+Đặt `RERANK_BACKEND=phoranker` để thử cross-encoder tiếng Việt trên collection hiện có. PhoRanker dùng PyVi để tách từ và chấm tối đa 256 token cho mỗi cặp câu hỏi–đoạn.
+
+Đặt thêm `CHUNKING_MODE=phoranker` khi ingest vào collection mới để chia các đoạn dài theo ranh giới khoản hoặc câu. Giới hạn 200 token PhoRanker cho đoạn và tiêu đề chừa chỗ cho câu hỏi. Đoạn con giữ khoảng trang nguồn của đoạn gốc. Các đoạn dẫn xuất giữ trạng thái duyệt của nội dung gốc và các hàng rubric đã kiểm duyệt được dùng nguyên vẹn.
+
+Để thử embedding mGTE, đặt `EMBED_BACKEND=mgte` và chọn `QDRANT_COLLECTION` mới, sau đó chạy lại `python -m scripts.ingest`. Collection này lưu dense 768 chiều cùng sparse của mGTE. Khi đổi backend, cập nhật hoặc bỏ các giá trị `EMBED_MODEL` và `RERANK_MODEL` đã ghi trong `.env`. Đặt `EVIDENCE_TOKENIZER_MODEL=BAAI/bge-m3` nếu cần giữ cùng cách chia đoạn và đếm ngân sách evidence khi so sánh hai embedder.
+
 ### 4) Kiểm thử và đánh giá
 
 ```text

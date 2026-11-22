@@ -47,7 +47,9 @@ def main() -> int:
     vectors = info.config.params.vectors
     dense = vectors.get('dense') if isinstance(vectors, dict) else None
     sparse = (info.config.params.sparse_vectors or {}).get('sparse')
-    check(dense is not None and dense.size == 1024, f'vector dense 1.024 chiều (thực tế: {getattr(dense, "size", None)})')
+    expected_dim = 768 if config.EMBED_BACKEND == 'mgte' else 1024
+    check(dense is not None and dense.size == expected_dim,
+          f'vector dense {expected_dim} chiều (thực tế: {getattr(dense, "size", None)})')
     check(sparse is not None, 'có vector sparse')
     st = retriever.stats()
     print(f"  điểm: {st['points']} (checked {st['checked']}, pending {st['pending']}); "
@@ -60,7 +62,7 @@ def main() -> int:
     t0 = time.time()
     enc = embedding.encode(['Mỗi học kỳ đăng ký tối đa bao nhiêu tín chỉ?'])[0]
     print(f'  tải + mã hóa: {time.time() - t0:.1f}s')
-    check(len(enc.dense) == 1024, f'dense có {len(enc.dense)} chiều')
+    check(len(enc.dense) == expected_dim, f'dense có {len(enc.dense)} chiều')
     check(len(enc.indices) > 0 and len(enc.indices) == len(enc.values), f'sparse có {len(enc.indices)} phần tử')
 
     print('\n== 3. Nhất quán với ingestion')

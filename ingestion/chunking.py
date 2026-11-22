@@ -24,6 +24,8 @@ APPENDIX_ITEM = re.compile(
 GUIDANCE_SECTION = re.compile(r"^([IVXLCDM]+)\.\s+")
 GUIDANCE_SUBSECTION = re.compile(r"^(\d+\.(?:\d+(?:\.\d+)*)?)\s+\D")
 TOKEN_LIMIT = 480
+CLAUSE_START = re.compile(r"^\d+[.)]\s+")
+SENTENCE_BOUNDARY = re.compile(r"(?<=[.!?;])\s+")
 
 
 @dataclass
@@ -156,6 +158,81 @@ def _pieces(text: str):
         cut = midpoint
     yield from _pieces(text[:cut].rstrip())
     yield from _pieces(text[cut:].lstrip())
+
+
+def _clause_spans(text):
+    """Keep numbered clauses and their lettered points together when possible."""
+    start = 0
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        if offset and CLAUSE_START.match(line) and not (
+            start == 0 and text[:offset].count("\n") == 1 and HEADING.match(text)
+        ):
+            yield text[start:offset]
+            start = offset
+        offset += len(line)
+    yield text[start:]
+
+
+def _split_to_fit(text, fits):
+    if fits(text):
+        yield text
+        return
+
+    midpoint = len(text) // 2
+    for boundary in (r"\n", SENTENCE_BOUNDARY, r"\s+"):
+        splits = [match.start() for match in re.finditer(boundary, text)
+                  if 0 < match.start() < len(text) - 1]
+        if splits:
+            cut = min(splits, key=lambda pos: abs(midpoint - pos))
+            break
+    else:
+        if len(text) <= 1:
+            raise ValueError("Passage budget is too small for this section")
+        cut = midpoint
+
+    yield from _split_to_fit(text[:cut].rstrip(), fits)
+    yield from _split_to_fit(text[cut:].lstrip(), fits)
+
+
+def _pack_clauses(text, fits):
+    current = ""
+    for span in _clause_spans(text):
+        for part in _split_to_fit(span.strip(), fits):
+            combined = f"{current}\n{part}" if current else part
+            if current and not fits(combined):
+                yield current
+                current = part
+            else:
+                current = combined
+    if current:
+        yield current
+
+
+def split_for_phoranker(doc, source, chunks, count_passage):
+    """Split oversized chunks into verbatim spans with the parent's source range."""
+    from core.pho_text import PASSAGE_LIMIT
+
+    result = {}
+    for chunk in chunks:
+        def fits(text, section=chunk.section):
+            return count_passage(section, text) <= PASSAGE_LIMIT
+
+        if fits(chunk.content):
+            if chunk.chunk_id not in result or chunk.review_status == "checked":
+                result[chunk.chunk_id] = chunk
+            continue
+
+        for text in _pack_clauses(chunk.content, fits):
+            unit = Unit(chunk.section, chunk.page_start, chunk.page_end, text)
+            child = make_chunk(doc, source, unit, chunk.review_status)
+            child = child.model_copy(update={
+                "applies_from_cohort": chunk.applies_from_cohort,
+                "applies_to_cohort": chunk.applies_to_cohort,
+            })
+            if child.chunk_id not in result or child.review_status == "checked":
+                result[child.chunk_id] = child
+    return list(result.values())
 
 
 def parse_pages(
