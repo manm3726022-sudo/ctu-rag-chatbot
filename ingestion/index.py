@@ -1,4 +1,4 @@
-"""Store dense and sparse BGE-M3 vectors with the retrieval payload."""
+"""Store dense and sparse embedding vectors with the retrieval payload."""
 
 from qdrant_client import models
 from qdrant_client.http.exceptions import UnexpectedResponse
@@ -89,7 +89,7 @@ def upsert(client, collection: str, points: list[models.PointStruct]) -> None:
         or sparse.modifier == models.Modifier.IDF
     ):
         raise ValueError(
-            f"Incompatible Qdrant collection {collection!r}: expected {DENSE} ({size}, cosine) and {SPARSE} (BGE-M3)"
+            f"Incompatible Qdrant collection {collection!r}: expected {DENSE} ({size}, cosine) and {SPARSE}"
         )
     for offset in range(0, len(points), 128):
         result = client.upsert(

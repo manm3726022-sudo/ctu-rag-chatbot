@@ -1,4 +1,4 @@
-'''Xếp hạng lại bằng BGE-Reranker và chọn evidence theo ngân sách token (Pipeline B6).
+'''Xếp hạng lại bằng cross-encoder và chọn evidence theo ngân sách token (Pipeline B6).
 
 - FlagEmbedding được import muộn; _reranker() tải model một lần.
 - Điểm reranker (normalize=True) nằm trong [0, 1] nhưng KHÔNG phải xác suất đúng; chỉ dùng để xếp hạng.
@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 
 from core import config
+from core.pho_text import format_passage
 from core.tokens import count_tokens
 
 
@@ -26,6 +27,13 @@ class Candidate:
 
 @lru_cache(maxsize=1)
 def _reranker():
+    if config.RERANK_BACKEND == 'phoranker':
+        from backend.services.phoranker import PhoRanker
+
+        return PhoRanker(config.RERANK_MODEL, use_fp16=config.USE_FP16)
+    if config.RERANK_BACKEND != 'bge':
+        raise ValueError(f'Unknown RERANK_BACKEND: {config.RERANK_BACKEND}')
+
     from FlagEmbedding import FlagReranker
 
     return FlagReranker(config.RERANK_MODEL, use_fp16=config.USE_FP16)
@@ -33,8 +41,7 @@ def _reranker():
 
 def passage(c: Candidate) -> str:
     p = c.payload
-    head = ' · '.join(x for x in [p.get('document_number'), p.get('section')] if x)
-    return f"{head}\n{p.get('content', '')}".strip()
+    return format_passage(p.get('document_number'), p.get('section'), p.get('content', ''))
 
 
 def rerank(question: str, candidates: list, model=None) -> list:

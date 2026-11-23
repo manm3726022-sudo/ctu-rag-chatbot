@@ -180,6 +180,35 @@ def test_guidance_chunks_keep_numbered_sections_across_pages(monkeypatch):
     assert "2/2" not in chunks[2].content
 
 
+def test_phoranker_chunks_keep_late_clause_and_review_provenance():
+    doc = _record("policy.pdf", "pdf_text", b"", pages=4)
+    source = doc.files[0]
+    section = "Quy chế > Điều 4"
+    intro = "Điều 4. Quy trình đánh giá"
+    earlier = "1. " + "nội dung " * 100
+    answer = "5. Trong thời gian phản hồi:\na) Gửi Trợ lý Công tác Sinh viên."
+    parent = chunking.make_chunk(
+        doc, source, chunking.Unit(section, 3, 4, f"{intro}\n{earlier}\n{answer}"), "checked",
+    )
+    short = chunking.make_chunk(doc, source, chunking.Unit(section, 4, 4, "6. Kết thúc phản hồi."))
+
+    def count_passage(section, text):
+        return len(f"{section} {text}".split())
+
+    children = chunking.split_for_phoranker(doc, source, [parent, short], count_passage)
+    selected = next(child for child in children if "Trợ lý" in child.content)
+    assert selected.content.endswith(answer)
+    assert selected.chunk_id != parent.chunk_id
+    assert (selected.page_start, selected.page_end, selected.section) == (3, 4, section)
+    assert selected.review_status == "checked"
+    assert all(count_passage(child.section, child.content) <= 200 for child in children)
+    assert short in children
+    assert " ".join(" ".join(child.content for child in children if child != short).split()) == (
+        " ".join(parent.content.split())
+    )
+    assert children == chunking.split_for_phoranker(doc, source, [parent, short], count_passage)
+
+
 def test_reviewed_rubric_keeps_the_scoring_caps_and_spanning_rows():
     manifest = json.loads(
         (ingest.ROOT / "docs/corpus/documents.json").read_text(encoding="utf-8")

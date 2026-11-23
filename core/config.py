@@ -33,8 +33,16 @@ GROQ_TPM_BUDGET = _int('GROQ_TPM_BUDGET', 6000)
 # --- Qdrant / model local (TV3) ---
 QDRANT_URL = os.getenv('QDRANT_URL', 'http://localhost:6333')
 COLLECTION = os.getenv('QDRANT_COLLECTION', 'ctu_knowledge')
-EMBED_MODEL = os.getenv('EMBED_MODEL', 'BAAI/bge-m3')
-RERANK_MODEL = os.getenv('RERANK_MODEL', 'BAAI/bge-reranker-v2-m3')
+EMBED_BACKEND = os.getenv('EMBED_BACKEND', 'bge-m3').strip().lower()
+RERANK_BACKEND = os.getenv('RERANK_BACKEND', 'bge').strip().lower()
+EMBED_MODEL = os.getenv(
+    'EMBED_MODEL', 'Alibaba-NLP/gte-multilingual-base' if EMBED_BACKEND == 'mgte' else 'BAAI/bge-m3',
+)
+RERANK_MODEL = os.getenv(
+    'RERANK_MODEL', 'itdainb/PhoRanker' if RERANK_BACKEND == 'phoranker' else 'BAAI/bge-reranker-v2-m3',
+)
+EVIDENCE_TOKENIZER_MODEL = os.getenv('EVIDENCE_TOKENIZER_MODEL') or EMBED_MODEL
+CHUNKING_MODE = os.getenv('CHUNKING_MODE', 'legacy').strip().lower()
 USE_FP16 = os.getenv('USE_FP16', 'false').lower() == 'true'
 RETRIEVE_PREFETCH = _int('RETRIEVE_PREFETCH', 20)
 RETRIEVE_LIMIT = _int('RETRIEVE_LIMIT', 20)
