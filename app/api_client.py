@@ -12,9 +12,13 @@ class ApiError(Exception):
     pass
 
 
-def ask(question: str) -> dict:
+def ask(question: str, history: list[dict] | None = None) -> dict:
     try:
-        r = requests.post(f'{API_URL}/chat', json={'question': question}, timeout=90)
+        r = requests.post(
+            f'{API_URL}/chat',
+            json={'question': question, 'history': history or []},
+            timeout=90,
+        )
     except requests.RequestException:
         raise ApiError('Không kết nối được máy chủ trả lời. Vui lòng thử lại sau.')
     if r.status_code == 503:

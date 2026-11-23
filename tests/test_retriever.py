@@ -1,7 +1,7 @@
 '''Retriever với Qdrant/BGE-M3/Reranker giả: kiểm bộ lọc, ghim, khử trùng, hợp đồng với TV4.'''
 import pytest
 
-from backend.services import reranker, retriever
+from backend.services import reranker, retrieval, retriever
 from core import config, corpus_catalog, embedding
 from tests import fakes
 
@@ -100,6 +100,42 @@ def test_evidence_dung_hop_dong_tv4():
     assert first.doc_number == 'qd3266/TEST' and first.page_start == 8 and first.text.startswith('Mỗi học kỳ')
     assert first.article == 'Điều 14' and first.source_url.endswith('qd3266.pdf')
     assert out.top_score == out.evidence[0].score > 0
+    assert {
+        'embedding_ms',
+        'qdrant_hybrid_ms',
+        'pin_scan_ms',
+        'rerank_ms',
+        'evidence_selection_ms',
+        'retrieval_total_ms',
+    } <= out.timings_ms.keys()
+    assert all(value >= 0 for value in out.timings_ms.values())
+
+
+def test_rrf_fast_mode_skips_cross_encoder_and_keeps_retrieval_candidates(monkeypatch):
+    monkeypatch.setattr(config, 'RERANK_ENABLED', False)
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError('cross-encoder must be skipped in fast mode')
+
+    monkeypatch.setattr(reranker, 'rerank', fail_if_called)
+    res = run('Điều 14 quy định thế nào?', require_checked=False)
+
+    assert res.ranked
+    assert all(candidate.rerank_score is None for candidate in res.ranked)
+    assert res.timings_ms['rerank_ms'] == 0.0
+    assert any(candidate.pinned for candidate in res.selected)
+
+
+def test_fast_mode_warmup_does_not_load_cross_encoder(monkeypatch):
+    monkeypatch.setattr(retrieval, 'MODE', 'real')
+    monkeypatch.setattr(config, 'RERANK_ENABLED', False)
+    monkeypatch.setattr(embedding, 'encode', lambda texts: [])
+
+    def fail_if_called():
+        raise AssertionError('cross-encoder must not load in fast mode')
+
+    monkeypatch.setattr(reranker, '_reranker', fail_if_called)
+    retrieval.warmup()
 
 
 def test_khong_co_ket_qua_thi_tra_rong(fake_stack):

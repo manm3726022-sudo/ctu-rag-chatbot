@@ -19,11 +19,13 @@ def warmup():
     '''Nạp model local trước để câu hỏi đầu tiên không chậm (chỉ khi dùng retriever thật).'''
     if MODE != 'real':
         return
-    from backend.services.reranker import _reranker
     from core.embedding import encode
 
     encode(['khởi động'])
-    _reranker()
+    if config.RERANK_ENABLED:
+        from backend.services.reranker import _reranker
+
+        _reranker()
 
 
 def health() -> dict:
@@ -32,6 +34,11 @@ def health() -> dict:
     try:
         from backend.services.retriever import stats
 
-        return {'retriever': 'real', 'qdrant': 'ok', **stats()}
+        return {
+            'retriever': 'real',
+            'qdrant': 'ok',
+            'rerank_enabled': config.RERANK_ENABLED,
+            **stats(),
+        }
     except Exception as e:  # noqa: BLE001 (health check không được làm sập API)
         return {'retriever': 'real', 'qdrant': 'down', 'error': type(e).__name__}

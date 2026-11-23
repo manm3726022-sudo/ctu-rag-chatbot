@@ -15,11 +15,14 @@ ROOT = Path(__file__).resolve().parents[1]
 PINNED_CONFIG = {
     'RETRIEVE_REQUIRE_CHECKED': True,
     'RETRIEVE_PREFETCH': 20,
-    'RETRIEVE_LIMIT': 20,
-    'RETRIEVE_MAX_PINNED': 8,
+    'RETRIEVE_LIMIT': 10,
+    'RETRIEVE_MAX_PINNED': 4,
     'EVIDENCE_MAX_CHUNKS': 6,
-    'EVIDENCE_MAX_TOKENS': 3000,
+    'EVIDENCE_MAX_TOKENS': 2000,
     'EVIDENCE_DIVERSITY_RATIO': 0.5,
+    'RERANK_MAX_LENGTH': 512,
+    'RERANK_BATCH_SIZE': 8,
+    'RERANK_ENABLED': True,
 }
 # Hai file test của TV1 đối chiếu hash với TỆP THẬT trong gói bàn giao (ZIP), không có trên GitHub.
 NEED_HANDOVER = {'test_corpus_metadata.py', 'test_tv1_integration.py'}

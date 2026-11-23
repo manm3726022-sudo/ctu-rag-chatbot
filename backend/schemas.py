@@ -1,9 +1,18 @@
 '''Hợp đồng dữ liệu giữa backend và giao diện (runbook §3.4). Không đổi tên trường khi chưa thống nhất cả nhóm.'''
+from typing import Literal
+
 from pydantic import BaseModel, Field
+
+
+class ChatTurn(BaseModel):
+    role: Literal['user', 'assistant']
+    content: str = Field(min_length=1, max_length=2000)
+    need_clarification: bool = False
 
 
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=1000)
+    history: list[ChatTurn] = Field(default_factory=list, max_length=6)
 
 
 class EvidenceChunk(BaseModel):

@@ -5,6 +5,7 @@ import os
 
 import pytest
 
+from core import config
 from core import corpus_catalog as cc
 from core.config import ROOT
 
@@ -95,3 +96,14 @@ def test_doc_lai_khi_manifest_doi(tmp_path):
     stat = path.stat()
     os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns + 10**9))  # đảm bảo mtime khác dù ghi liên tiếp rất nhanh
     assert len(cc.load_catalog(path)) == 3
+
+
+def test_default_catalog_merges_local_admin_documents(tmp_path, monkeypatch):
+    base = write(tmp_path / 'base.json', [row('base1', '1/QĐ-T')])
+    overlay = write(tmp_path / 'admin.json', [row('local1', '2/QĐ-T')])
+    monkeypatch.setattr(config, 'MANIFEST_PATH', base)
+    monkeypatch.setattr(config, 'ADMIN_MANIFEST_PATH', overlay)
+
+    docs = cc.load_catalog()
+
+    assert [doc.document_id for doc in docs] == ['base1', 'local1']

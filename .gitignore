@@ -23,8 +23,10 @@ data/registry/*
 backups/
 
 # --- Duyệt đoạn: file làm việc không commit, SỔ DUYỆT thì commit ---
+data/admin/
 data/review/*.csv
 !data/review/approved_chunks.csv
+data/review/chunk_overrides.json
 
 # --- Bảng quy tắc có cấu trúc: PHẢI commit (qd4932_rubric.csv, ...) ---
 !data/structured_rules/*.csv

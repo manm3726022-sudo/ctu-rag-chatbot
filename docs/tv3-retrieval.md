@@ -9,13 +9,13 @@ Phạm vi: B5 (hybrid search), B6 (reranker, chọn evidence), đánh giá truy 
 
 | Tên | Ở đâu | Vai trò |
 |---|---|---|
-| `retrieve(question, filters=None) -> Retrieval` | `backend/services/retriever.py` | `Retrieval(routed, evidence, n_candidates, top_score)` |
+| `retrieve(question, filters=None) -> Retrieval` | `backend/services/retriever.py` | `Retrieval(routed, evidence, n_candidates, top_score, timings_ms)` |
 | `RetrievalError` | `backend/services/retriever.py` | Lỗi Qdrant/model → API trả 503 |
 | `stats()` | `backend/services/retriever.py` | `/health`: số điểm tổng/checked/pending |
 | `encode(list[str])` | `core/embedding.py` | warmup |
-| `_reranker()` | `backend/services/reranker.py` | warmup |
+| `_reranker()` | `backend/services/reranker.py` | warmup khi `RERANK_ENABLED=true` |
 
-`evidence` là `list[EvidenceChunk]` đã gán `S1, S2, ...`; `top_score` là điểm reranker của đoạn đầu;
+`evidence` là `list[EvidenceChunk]` đã gán `S1, S2, ...`; `top_score` là điểm xếp hạng cao nhất;
 `routed.term_key` là học kỳ nhận diện được (20241 = HK1 năm học 2024–2025) hoặc `None`.
 `filters` (tùy chọn): `require_checked` (bool), `document_ids` (list), `term_key` (int).
 
@@ -24,10 +24,16 @@ Phạm vi: B5 (hybrid search), B6 (reranker, chọn evidence), đánh giá truy 
 1. `query_router.route`: chuẩn hóa NFC; nhận diện văn bản nêu đích danh, "Điều N", "Phụ lục V.b", học kỳ + năm học, khóa, câu hỏi về hiệu lực.
 2. `corpus_catalog.valid_documents`: văn bản còn dùng được (manifest) theo học kỳ (nếu có).
 3. Bộ lọc Qdrant: `document_id` ∈ văn bản hợp lệ, `sha256` ∈ tệp nguồn chính, `status = indexed`, và `review_status = checked` nếu `RETRIEVE_REQUIRE_CHECKED`.
-4. BGE-M3 mã hóa câu hỏi → 2 prefetch (dense top 20, sparse top 20) → RRF → top 20.
-5. Ghim đoạn theo "Điều N"/"Phụ lục" (nếu có) → khử trùng → tối đa 20 ứng viên.
-6. BGE-Reranker chấm cặp (câu hỏi, đoạn) → chọn ≤ `EVIDENCE_MAX_CHUNKS` đoạn trong `EVIDENCE_MAX_TOKENS` token, ưu tiên mỗi văn bản một đoạn tốt nhất.
+4. BGE-M3 mã hóa câu hỏi → 2 prefetch (dense top 20, sparse top 20) → RRF → tối đa 10 ứng viên.
+5. Ghim tối đa 4 đoạn theo "Điều N"/"Phụ lục" (nếu có) → khử trùng → tối đa 10 ứng viên.
+6. Nếu `RERANK_ENABLED=true`, BGE-Reranker chấm cặp (câu hỏi, đoạn); nếu không, giữ thứ tự RRF. Sau đó chọn ≤ `EVIDENCE_MAX_CHUNKS` đoạn trong `EVIDENCE_MAX_TOKENS` token.
 7. Payload → `EvidenceChunk` (tên văn bản, mục, trang lấy từ metadata).
+
+Mặc định `RERANK_ENABLED=false`: hệ thống bỏ qua cross-encoder và dùng thứ tự RRF, tránh độ trễ
+cao trên CPU. Bật `RERANK_ENABLED=true` để ưu tiên chất lượng xếp hạng; giới hạn tối đa 10 ứng viên
+và 512 token mỗi cặp. Ngân sách evidence mặc định là 2.000 token. So sánh validation trước/sau,
+đặc biệt độ phủ câu hỏi cần nhiều văn bản. `timings_ms` và `scripts.debug_chat --no-llm` tách
+thời gian embedding, Qdrant, quét đoạn ghim, rerank và chọn evidence.
 
 ## Chạy trên máy của bạn (thứ tự khuyến nghị)
 

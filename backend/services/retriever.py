@@ -1,17 +1,18 @@
 '''Truy xuất lai cho kho CTU (Pipeline B5–B6):
   câu hỏi -> router -> văn bản còn dùng được (manifest) -> BGE-M3 dense+sparse -> Qdrant RRF
-  -> (ghim "Điều N"/"Phụ lục") -> khử trùng -> BGE reranker -> chọn evidence theo token.
+  -> (ghim "Điều N"/"Phụ lục") -> khử trùng -> (reranker tùy chọn) -> chọn evidence theo token.
 
 Hợp đồng với TV4 (backend/services/retrieval.py):
   retrieve(question, filters=None) -> Retrieval(routed, evidence, n_candidates, top_score)
   - evidence: list[EvidenceChunk] đã gán source_id S1, S2, ... theo thứ hạng
-  - top_score: điểm reranker của đoạn đầu (dùng so với RERANK_ABSTAIN_THRESHOLD)
+  - top_score: điểm xếp hạng cao nhất (ngưỡng chỉ áp dụng khi reranker bật)
   - routed.term_key: học kỳ nhận diện được (None nếu không có)
 filters (tùy chọn, cho đánh giá/thử nghiệm): require_checked, document_ids, term_key.
 
 Cố ý không import FlagEmbedding/QdrantClient ở cấp module (chỉ import khi dùng) để test và /health nhẹ.'''
 import re
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 
 from qdrant_client import models
 
@@ -32,6 +33,7 @@ class Retrieval:
     evidence: list
     n_candidates: int
     top_score: float
+    timings_ms: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -41,6 +43,7 @@ class SearchResult:
     ranked: list  # sau reranker, giảm dần
     selected: list  # đoạn được chọn làm evidence
     reason: str = None  # 'empty_question' | 'no_valid_document' | 'no_candidates' | None
+    timings_ms: dict = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------- client Qdrant
@@ -223,32 +226,71 @@ def _merge(fused: list, pins: list) -> list:
 
 # ---------------------------------------------------------------- API chính
 def search(question: str, filters: dict = None, catalog=None) -> SearchResult:
+    started = time.perf_counter()
     filters = filters or {}
     require_checked = filters.get('require_checked', config.RETRIEVE_REQUIRE_CHECKED)
     catalog = corpus_catalog.load_catalog() if catalog is None else catalog
     routed = route(question, catalog)
     if not routed.question:
-        return SearchResult(routed, [], [], [], 'empty_question')
+        return SearchResult(
+            routed, [], [], [], 'empty_question',
+            {'retrieval_total_ms': round((time.perf_counter() - started) * 1000, 1)},
+        )
     docs = _documents(routed, catalog, filters)
     if not docs:
-        return SearchResult(routed, [], [], [], 'no_valid_document')
+        return SearchResult(
+            routed, [], [], [], 'no_valid_document',
+            {'retrieval_total_ms': round((time.perf_counter() - started) * 1000, 1)},
+        )
     flt = build_filter(docs, require_checked)
     try:
         client = get_client()
+        stage_started = time.perf_counter()
         enc = embedding.encode([routed.question])[0]
+        timings_ms = {
+            'embedding_ms': round((time.perf_counter() - stage_started) * 1000, 1)
+        }
+        stage_started = time.perf_counter()
         fused = _hybrid(client, enc, flt)
+        timings_ms['qdrant_hybrid_ms'] = round(
+            (time.perf_counter() - stage_started) * 1000, 1
+        )
+        stage_started = time.perf_counter()
         pins = _pinned(client, flt, routed)
+        timings_ms['pin_scan_ms'] = round((time.perf_counter() - stage_started) * 1000, 1)
     except Exception as exc:  # noqa: BLE001 (Qdrant/model lỗi -> báo 503 qua RetrievalError)
         raise RetrievalError(f'{type(exc).__name__}: {exc}') from exc
     cands = _merge(fused, pins)
     if not cands:
-        return SearchResult(routed, [], [], [], 'no_candidates')
+        timings_ms['retrieval_total_ms'] = round(
+            (time.perf_counter() - started) * 1000, 1
+        )
+        return SearchResult(routed, [], [], [], 'no_candidates', timings_ms)
     try:
-        ranked = reranker.rerank(routed.question, cands)
-        selected = reranker.select_evidence(ranked)
+        if config.RERANK_ENABLED:
+            stage_started = time.perf_counter()
+            ranked = reranker.rerank(routed.question, cands)
+            timings_ms['rerank_ms'] = round(
+                (time.perf_counter() - stage_started) * 1000, 1
+            )
+            diversity_ratio = None
+        else:
+            ranked = sorted(
+                cands,
+                key=lambda candidate: (candidate.pinned, candidate.score),
+                reverse=True,
+            )
+            timings_ms['rerank_ms'] = 0.0
+            diversity_ratio = 0.0 if any(candidate.pinned for candidate in ranked) else None
+        stage_started = time.perf_counter()
+        selected = reranker.select_evidence(ranked, diversity_ratio=diversity_ratio)
+        timings_ms['evidence_selection_ms'] = round(
+            (time.perf_counter() - stage_started) * 1000, 1
+        )
     except Exception as exc:  # noqa: BLE001 (reranker lỗi/hết RAM -> 503 thay vì 500)
         raise RetrievalError(f'{type(exc).__name__}: {exc}') from exc
-    return SearchResult(routed, cands, ranked, selected)
+    timings_ms['retrieval_total_ms'] = round((time.perf_counter() - started) * 1000, 1)
+    return SearchResult(routed, cands, ranked, selected, timings_ms=timings_ms)
 
 
 def _article(section) -> str:
@@ -285,8 +327,8 @@ def to_evidence(selected: list) -> list:
 def retrieve(question: str, filters: dict = None) -> Retrieval:
     res = search(question, filters)
     evidence = to_evidence(res.selected)
-    top = res.selected[0].final_score if res.selected else 0.0
-    return Retrieval(res.routed, evidence, len(res.fused), top)
+    top = max((candidate.final_score for candidate in res.selected), default=0.0)
+    return Retrieval(res.routed, evidence, len(res.fused), top, res.timings_ms)
 
 
 def stats() -> dict:

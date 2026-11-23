@@ -21,6 +21,7 @@ là các quyết định đã chốt ở TV4. Mục D8 trở đi bổ sung khi t
 | D20 | **Archive** = đặt `status: archived` trong manifest rồi `python -m scripts.prune_index --apply` | Thay cho `--archive` trong Pipeline §5.1; không cần sửa ingest |
 | D21 | Quy tắc "cần xác minh" Yếu/Kém mở rộng sang diễn đạt tắt ("bị Yếu", "loại kém") ở `backend/services/verify_rules.py` | CTU-085 trước đây bị bỏ lọt |
 | D22 | Lỗi Qdrant/model ở retriever → `RetrievalError` → API trả 503 | Trước đây là lỗi 500 không rõ nguyên nhân |
+| D23 | Mặc định bỏ qua cross-encoder (`RERANK_ENABLED=false`), dùng thứ tự RRF; có thể bật reranker để đổi độ trễ lấy chất lượng xếp hạng | Log thật cho thấy BGE-Reranker mất khoảng 26 giây để chấm 2 đoạn trên CPU |
 
 ## Hạn chế đã biết (chưa xử lý, cần người quyết định)
 
