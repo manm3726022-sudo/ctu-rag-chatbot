@@ -30,6 +30,7 @@ def diagnose(question, require_checked=None, call_llm=True, search=None, generat
         },
         'reason': res.reason,
         'n_candidates': len(res.fused),
+        'timings_ms': getattr(res, 'timings_ms', {}),
         'evidence': [],
     }
     evidence = retriever.to_evidence(res.selected)
@@ -76,6 +77,8 @@ def print_report(rep: dict) -> None:
     print(f"  câu hỏi chuẩn hóa: {r['question']}")
     print(f"  văn bản={r['docs']} điều={r['articles']} phụ lục={r['appendix']} kỳ={r['term_key']} hiệu lực={r['about_validity']}")
     print(f"\n== 2. Bằng chứng (ứng viên sau RRF: {rep['n_candidates']}, lý do rỗng: {rep['reason']})")
+    if rep['timings_ms']:
+        print(f"  thời gian các bước (ms): {rep['timings_ms']}")
     total = 0
     for e in rep['evidence']:
         total += e['tokens']

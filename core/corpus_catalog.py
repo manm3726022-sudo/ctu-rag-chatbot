@@ -62,14 +62,29 @@ def _parse(row) -> CatalogDoc:
 
 
 @lru_cache(maxsize=8)
-def _load(path: str, mtime_ns: int) -> tuple:
+def _load(
+    path: str,
+    mtime_ns: int,
+    overlay_path: str | None = None,
+    overlay_mtime_ns: int | None = None,
+) -> tuple:
     rows = json.loads(Path(path).read_text(encoding='utf-8'))
+    if overlay_path is not None:
+        rows.extend(json.loads(Path(overlay_path).read_text(encoding='utf-8')))
     return tuple(_parse(r) for r in rows)
 
 
 def load_catalog(path=None) -> tuple:
-    '''Đọc manifest; tự đọc lại khi tệp được sửa (không cần khởi động lại API).'''
+    '''Đọc manifest và overlay admin; tự đọc lại khi một trong hai tệp được sửa.'''
     p = Path(path or config.MANIFEST_PATH)
+    overlay = config.ADMIN_MANIFEST_PATH if path is None else None
+    if overlay is not None and overlay.exists():
+        return _load(
+            str(p),
+            p.stat().st_mtime_ns,
+            str(overlay),
+            overlay.stat().st_mtime_ns,
+        )
     return _load(str(p), p.stat().st_mtime_ns)
 
 

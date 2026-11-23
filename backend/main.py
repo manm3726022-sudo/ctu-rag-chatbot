@@ -9,6 +9,10 @@ from fastapi import FastAPI, HTTPException
 
 from backend.schemas import ChatRequest, ChatResponse
 from backend.services import citation_validator, generator, groq_client, retrieval
+from backend.services.conversation import (
+    contextualize_question,
+    is_confirmation_followup,
+)
 from backend.services.verify_rules import VERIFY_RULES, needs_verification  # noqa: F401
 from core import config
 
@@ -70,30 +74,55 @@ def _log(**kw):
 
 @app.post('/chat', response_model=ChatResponse)
 def chat(req: ChatRequest):
-    t0 = time.time()
+    t0 = time.perf_counter()
+    confirmation_resolved = is_confirmation_followup(req.question, req.history)
+    question = contextualize_question(req.question, req.history)
     try:
-        res = retrieval.retrieve(req.question)
+        res = retrieval.retrieve(question)
     except retrieval.RetrievalError as e:
         raise HTTPException(status_code=503, detail=f'Kho tài liệu tạm thời không truy cập được: {e}')
+    retrieval_ms = round((time.perf_counter() - t0) * 1000, 1)
+    timings_ms = dict(getattr(res, 'timings_ms', {}) or {})
+    timings_ms.setdefault('retrieval_total_ms', retrieval_ms)
     ev = res.evidence
     if not ev:
         flag = 'no_valid_document_for_term' if res.routed.term_key else 'no_evidence'
-        _log(q=req.question, evidence=[], flags=[flag], routed=_routed_info(res), ms=int((time.time() - t0) * 1000))
+        timings_ms['total_ms'] = round((time.perf_counter() - t0) * 1000, 1)
+        _log(q=req.question, evidence=[], flags=[flag], routed=_routed_info(res),
+             ms=int((time.perf_counter() - t0) * 1000), timings_ms=timings_ms)
         return ChatResponse(answer=ABSTAIN_MSG, abstain=True, risk_flag=flag)
-    if config.ABSTAIN_THRESHOLD is not None and res.top_score < config.ABSTAIN_THRESHOLD:
+    if (
+        config.RERANK_ENABLED
+        and config.ABSTAIN_THRESHOLD is not None
+        and res.top_score < config.ABSTAIN_THRESHOLD
+    ):
+        timings_ms['total_ms'] = round((time.perf_counter() - t0) * 1000, 1)
         _log(q=req.question, evidence=[e.chunk_id for e in ev], scores=[round(e.score, 3) for e in ev],
-             flags=['low_score'], routed=_routed_info(res), ms=int((time.time() - t0) * 1000))
+             flags=['low_score'], routed=_routed_info(res), ms=int((time.perf_counter() - t0) * 1000),
+             timings_ms=timings_ms)
         return ChatResponse(answer=ABSTAIN_MSG, abstain=True, risk_flag='low_score')
+    answer_started = time.perf_counter()
     try:
-        draft, text, cites, flags = _answer(req.question, ev)
+        draft, text, cites, flags = _answer(question, ev)
     except groq_client.QuotaExhausted as e:
         raise HTTPException(status_code=503, detail=str(e), headers={'Retry-After': '60'})
     except groq_client.LLMUnavailable as e:
         raise HTTPException(status_code=503, detail=str(e))
     if draft.finish_reason == 'length':
         flags.append('truncated')
-    if needs_verification(req.question):
+    if needs_verification(question):
         flags.append('needs_verification')
+    if draft.clarify:
+        flags = [flag for flag in flags if flag != 'no_citation']
+        if confirmation_resolved:
+            draft.clarify = False
+            draft.abstain = True
+            text = ABSTAIN_MSG
+            cites = []
+            flags.append('clarification_after_confirmation')
+    timings_ms['generation_and_validation_ms'] = round(
+        (time.perf_counter() - answer_started) * 1000, 1
+    )
     if draft.clarify:
         out = ChatResponse(answer=text, need_clarification=True)
     elif draft.abstain or 'no_citation' in flags:
@@ -101,8 +130,10 @@ def chat(req: ChatRequest):
     else:
         out = ChatResponse(answer=text, citations=cites)
     out.risk_flag = ','.join(flags) or None
+    timings_ms['total_ms'] = round((time.perf_counter() - t0) * 1000, 1)
     _log(q=req.question, evidence=[e.chunk_id for e in ev], scores=[round(e.score, 3) for e in ev],
-         flags=flags, usage=draft.usage, model=draft.model, ms=int((time.time() - t0) * 1000),
+         flags=flags, usage=draft.usage, model=draft.model, ms=int((time.perf_counter() - t0) * 1000),
          abstain=out.abstain, clarify=out.need_clarification, finish=draft.finish_reason,
-         draft=(draft.text or '')[:600], answer=out.answer[:300], routed=_routed_info(res))
+         draft=(draft.text or '')[:600], answer=out.answer[:300], routed=_routed_info(res),
+         rerank_enabled=config.RERANK_ENABLED, timings_ms=timings_ms)
     return out

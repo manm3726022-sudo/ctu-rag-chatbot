@@ -25,6 +25,15 @@ số hiệu `QĐ-MOCK`), chỉ để thử luồng, không dùng để đánh gi
 - Đối tượng trả về cần có: `routed.term_key`, `evidence: list[EvidenceChunk]`, `n_candidates`, `top_score`.
 - `format_evidence()` đặt ở `generator.py` (việc của prompt). TV3 có thể import từ đây thay vì viết lại trong reranker.
 
+## Hội thoại làm rõ
+
+`POST /chat` nhận tối đa 6 lượt history gần nhất. Streamlit gửi lịch sử này nhưng API chỉ ghép
+ngữ cảnh vào câu hỏi khi lượt assistant ngay trước đó có `need_clarification=true`; câu hỏi mới
+sau một câu trả lời hoàn tất vẫn được xử lý độc lập. Ngữ cảnh ghép được dùng cho cả retrieval
+và generation, nên câu trả lời như “khóa 47” có thể tiếp tục câu hỏi vừa làm rõ. Bấm “Cuộc hội
+thoại mới” để xoá history. History bị giới hạn độ dài để không phình prompt; đây chưa phải bộ nhớ
+bền vững qua lần khởi động lại ứng dụng.
+
 ## Trạng thái kiểm thử
 
 | Mã | Nội dung | Trạng thái |

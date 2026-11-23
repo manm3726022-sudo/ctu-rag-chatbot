@@ -14,6 +14,7 @@ from core.corpus_metadata import DocumentRecord
 from ingestion.approvals import apply_approved, read_approved
 from ingestion.chunking import parse_pages, split_for_phoranker
 from ingestion.extract import extract_pages
+from ingestion.overrides import apply_overrides, read_overrides
 from ingestion.rubric import read_rubric
 from ingestion.sources import acquire
 
@@ -53,6 +54,8 @@ def _build_chunks(doc, source, pages, approved):
 def _prepare(doc, source, path, output, approved=frozenset()):
     pages = extract_pages(path, source)
     chunks, tables = _build_chunks(doc, source, pages, approved)
+    chunks = apply_overrides(chunks, read_overrides(config.CHUNK_OVERRIDES_PATH))
+    chunks = apply_approved(chunks, approved)
     prefix = output / f"{doc.document_id}-{source.sha256}"
     _write_jsonl(
         prefix.with_suffix(".pages.jsonl"),
@@ -66,6 +69,28 @@ def _prepare(doc, source, path, output, approved=frozenset()):
     return chunks
 
 
+def _load_document_records(manifest: Path):
+    from pydantic import TypeAdapter
+
+    docs = TypeAdapter(list[DocumentRecord]).validate_json(manifest.read_bytes())
+    if (
+        Path(manifest).resolve() == Path(config.MANIFEST_PATH).resolve()
+        and config.ADMIN_MANIFEST_PATH.exists()
+    ):
+        admin_docs = TypeAdapter(list[DocumentRecord]).validate_json(
+            config.ADMIN_MANIFEST_PATH.read_bytes()
+        )
+        known_ids = {doc.document_id for doc in docs}
+        duplicate_ids = known_ids & {doc.document_id for doc in admin_docs}
+        if duplicate_ids:
+            raise ValueError(
+                "Document IDs exist in both manifests: "
+                + ", ".join(sorted(duplicate_ids))
+            )
+        docs.extend(admin_docs)
+    return docs
+
+
 def run(
     manifest: Path,
     raw_dir: Path,
@@ -74,9 +99,7 @@ def run(
     prepare_only: bool,
     approved=frozenset(),
 ) -> int:
-    from pydantic import TypeAdapter
-
-    docs = TypeAdapter(list[DocumentRecord]).validate_json(manifest.read_bytes())
+    docs = _load_document_records(Path(manifest))
     ids = [doc.document_id for doc in docs]
     if len(set(ids)) != len(ids) or any(
         not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", name) for name in ids
@@ -134,7 +157,23 @@ def run(
     ]
     client = QdrantClient(url=config.QDRANT_URL, timeout=60)
     try:
+        superseded_ids = {
+            chunk_id
+            for override in read_overrides(config.CHUNK_OVERRIDES_PATH).values()
+            if override.get("document_id") in {doc.document_id for doc, _, _ in prepared}
+            for chunk_id in override.get("superseded_chunk_ids", [])
+        }
+        current_ids = {str(point.id) for point in points}
+        stale_ids = sorted(superseded_ids - current_ids)
         upsert(client, config.COLLECTION, points)
+        if stale_ids:
+            from qdrant_client import models
+
+            client.delete(
+                collection_name=config.COLLECTION,
+                points_selector=models.PointIdsList(points=stale_ids),
+                wait=True,
+            )
     finally:
         client.close()
     return len(points)
@@ -143,7 +182,7 @@ def run(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--manifest", type=Path, default=ROOT / "docs/corpus/documents.json"
+        "--manifest", type=Path, default=config.MANIFEST_PATH
     )
     parser.add_argument("--raw-dir", type=Path, default=ROOT / "data/raw")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "data/processed")

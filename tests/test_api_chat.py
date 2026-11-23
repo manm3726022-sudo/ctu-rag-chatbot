@@ -42,7 +42,79 @@ def test_khong_bang_chung_thi_tu_choi_va_khong_goi_llm(monkeypatch):
 
 def test_clarify(monkeypatch):
     c = setup(monkeypatch, draft=generator.AnswerDraft('Bạn học khóa nào?', clarify=True))
-    assert c.post('/chat', json={'question': 'Điều kiện tốt nghiệp?'}).json()['need_clarification'] is True
+    r = c.post('/chat', json={'question': 'Điều kiện tốt nghiệp?'}).json()
+    assert r['need_clarification'] is True
+    assert r['risk_flag'] is None
+
+
+def test_followup_context_is_used_for_retrieval_and_generation(monkeypatch):
+    seen = {}
+    c = setup(monkeypatch, draft=generator.AnswerDraft('Câu trả lời [S1].'))
+
+    def fake_retrieve(question):
+        seen['retrieval'] = question
+        return NS(
+            routed=NS(term_key=None, question=question),
+            evidence=EV,
+            n_candidates=1,
+            top_score=0.9,
+        )
+
+    def fake_generate(question, evidence):
+        seen['generation'] = question
+        return generator.AnswerDraft('Câu trả lời [S1].')
+
+    monkeypatch.setattr(main.retrieval, 'retrieve', fake_retrieve)
+    monkeypatch.setattr(main.generator, 'generate_answer', fake_generate)
+    r = c.post(
+        '/chat',
+        json={
+            'question': 'Khóa 47',
+            'history': [
+                {'role': 'user', 'content': 'Điều kiện cảnh báo học vụ là gì?'},
+                {
+                    'role': 'assistant',
+                    'content': 'Bạn thuộc khóa nào?',
+                    'need_clarification': True,
+                },
+            ],
+        },
+    )
+
+    assert r.status_code == 200
+    assert 'Điều kiện cảnh báo học vụ là gì?' in seen['retrieval']
+    assert 'Khóa 47' in seen['retrieval']
+    assert seen['generation'] == seen['retrieval']
+
+
+def test_confirmation_followup_that_clarifies_again_abstains_instead(monkeypatch):
+    c = setup(
+        monkeypatch,
+        draft=generator.AnswerDraft('Bạn muốn biết điểm chữ nào?', clarify=True),
+    )
+    r = c.post(
+        '/chat',
+        json={
+            'question': 'Đúng vậy',
+            'history': [
+                {
+                    'role': 'user',
+                    'content': '3.7 điểm trên thang điểm 4 có tương ứng với điểm A không?',
+                },
+                {
+                    'role': 'assistant',
+                    'content': 'Bạn muốn biết điểm 3.7 tương ứng với điểm chữ nào? Vui lòng xác nhận.',
+                    'need_clarification': True,
+                },
+            ],
+        },
+    ).json()
+
+    assert r['need_clarification'] is False
+    assert r['abstain'] is True
+    assert r['answer'] == main.ABSTAIN_MSG
+    assert 'no_citation' not in (r['risk_flag'] or '')
+    assert 'clarification_after_confirmation' in r['risk_flag']
 
 
 def test_khong_co_citation_hop_le_thi_tu_choi(monkeypatch):

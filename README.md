@@ -29,7 +29,7 @@ Hỏi đáp (online):
 | PDF / OCR | pypdf, pypdfium2 (dựng ảnh trang) + Tesseract `vie+eng` (gọi bằng dòng lệnh) |
 | DOCX / HTML | python-docx; BeautifulSoup4 |
 | Embedding | `BAAI/bge-m3` (dense + sparse), chạy local |
-| Reranker | `BAAI/bge-reranker-v2-m3`, chạy local |
+| Reranker | `BAAI/bge-reranker-v2-m3`, chạy local khi `RERANK_ENABLED=true` |
 | Vector DB | Qdrant (Docker Compose) |
 | LLM | GroqCloud Free API: `openai/gpt-oss-120b`, dự phòng `openai/gpt-oss-20b` |
 | Backend / UI | FastAPI + Pydantic / Streamlit |
@@ -41,7 +41,7 @@ Hỏi đáp (online):
 - Ubuntu, hoặc Windows với WSL2 + Ubuntu (khuyến nghị cho Windows).
 - Python 3.11 hoặc 3.12, Git, Docker Engine + Docker Compose.
 - Tesseract kèm dữ liệu tiếng Việt và tiếng Anh (`tesseract --list-langs` phải có `vie` và `eng`). Ghostscript/qpdf chỉ cần nếu sau này dùng OCRmyPDF (code hiện tại không dùng).
-- RAM: khuyến nghị 12 GB trở lên khi chạy API với `RETRIEVER=real` (nạp đồng thời BGE-M3 và reranker); tối thiểu 8 GB. Vài GB ổ đĩa cho model cache và Qdrant. Không cần GPU.
+- RAM: khuyến nghị 12 GB trở lên khi chạy API với `RETRIEVER=real` và bật reranker; tối thiểu 8 GB cho chế độ RRF mặc định. Vài GB ổ đĩa cho model cache và Qdrant. Không cần GPU.
 - Tài khoản Groq (Free Plan) để lấy API key. **Không** thêm phương thức thanh toán.
 
 ## Cấu trúc thư mục
@@ -86,7 +86,7 @@ python -m scripts.ingest                                 # toàn bộ (QĐ 3266 
 
 Đoạn trích tự động mang `review_status=pending`; các hàng bảng QĐ 4932 đã đối chiếu mang `checked`. Đoạn nào đã được người phụ trách duyệt (ghi trong `data/review/approved_chunks.csv`) sẽ được ghi `checked` mỗi lần nạp lại. Chạy lại cùng dữ liệu sẽ ghi đè điểm có cùng ID. Để archive một văn bản: đặt `"status": "archived"` trong `documents.json` rồi chạy `python -m scripts.prune_index --apply` để dọn điểm khỏi Qdrant (retriever đã tự bỏ qua chúng).
 
-### 2) Kiểm tra BGE-M3 + Qdrant + reranker (T2, không tốn quota Groq)
+### 2) Kiểm tra BGE-M3 + Qdrant (+ reranker nếu bật; không tốn quota Groq)
 
 ```text
 python -m scripts.smoke_retrieval
@@ -101,9 +101,31 @@ streamlit run app/main.py                                   # cửa sổ 2 -> ht
 curl http://127.0.0.1:8000/health                           # xem số điểm checked/pending
 ```
 
+Giao diện giữ tối đa 5 cuộc hội thoại trước đó trong phiên Streamlit hiện tại. Chọn cuộc hội thoại ở thanh bên để mở lại; nút **Cuộc hội thoại mới** tạo phiên trống và giữ nội dung phiên đang chat. Lịch sử này chưa được lưu bền vững qua khi phiên Streamlit kết thúc.
+
+### Giao diện quản trị tài liệu (MVP)
+
+Đặt mật khẩu riêng trong `.env`:
+
+```text
+ADMIN_PASSWORD=mat_khau_admin
+```
+
+Khởi động Qdrant, sau đó chạy giao diện admin ở một terminal khác:
+
+```text
+streamlit run app/admin.py --server.address 127.0.0.1 --server.port 8502
+```
+
+MVP chỉ nhận PDF/DOCX và xử lý đồng bộ bằng pipeline hiện có (trích xuất/OCR, chia đoạn, embedding, Qdrant). Metadata tài liệu tải lên được lưu trong overlay cục bộ `data/admin/documents.json` (không làm thay đổi manifest chính, không commit); overlay này được chatbot và lệnh ingest đọc cùng với `docs/corpus/documents.json`. Trang **Pending review** cho phép duyệt từng đoạn hoặc duyệt tất cả đoạn đang hiển thị sau bộ lọc; thao tác duyệt hàng loạt yêu cầu xác nhận. Trang **Approved** đọc nội dung thật từ các chunk đã xử lý; sửa text sẽ chỉ tạo lại embedding và lập chỉ mục cho đoạn đó. Nội dung sửa được lưu cục bộ trong `data/review/chunk_overrides.json` để không mất khi chạy ingest lại; file này không được commit.
+
+Trang admin là MVP nội bộ, chưa có tài khoản/phân quyền theo người dùng hoặc hàng đợi xử lý nền. Chỉ bind vào `127.0.0.1`; không mở trực tiếp ra Internet. Đặt `ADMIN_PASSWORD` trước khi khởi chạy; nếu biến này trống, trang bị khóa.
+
 Mặc định (`RETRIEVE_REQUIRE_CHECKED=true`) chatbot chỉ dùng đoạn đã duyệt làm bằng chứng. Khi chưa duyệt xong các đoạn `pending`, câu hỏi ngoài bảng rèn luyện QĐ 4932 sẽ bị từ chối; đặt `false` để thử nghiệm.
 
-Đặt `RERANK_BACKEND=phoranker` để thử cross-encoder tiếng Việt trên collection hiện có. PhoRanker dùng PyVi để tách từ và chấm tối đa 256 token cho mỗi cặp câu hỏi–đoạn.
+API hiện giữ tối đa 6 tin nhắn gần nhất để hiểu câu trả lời sau khi chatbot hỏi làm rõ; một câu hỏi mới sau câu trả lời hoàn tất vẫn được tra độc lập. Mặc định `RERANK_ENABLED=false` để tránh cross-encoder chạy chậm trên CPU; hệ thống dùng thứ hạng RRF của Qdrant. Đặt `RERANK_ENABLED=true` để bật BGE-Reranker, nhưng cần đo độ trễ và chạy retrieval validation để so sánh chất lượng. Giới hạn truy xuất hiện là 10 ứng viên, 512 token mỗi passage và 2.000 token evidence. Xem `timings_ms` trong log hoặc chạy `python -m scripts.debug_chat --no-llm "câu hỏi"` để xác định bước chậm.
+
+Đặt `RERANK_ENABLED=true` và `RERANK_BACKEND=phoranker` để thử cross-encoder tiếng Việt trên collection hiện có. PhoRanker dùng PyVi để tách từ và chấm tối đa 256 token cho mỗi cặp câu hỏi–đoạn.
 
 Đặt thêm `CHUNKING_MODE=phoranker` khi ingest vào collection mới để chia các đoạn dài theo ranh giới khoản hoặc câu. Giới hạn 200 token PhoRanker cho đoạn và tiêu đề chừa chỗ cho câu hỏi. Đoạn con giữ khoảng trang nguồn của đoạn gốc. Các đoạn dẫn xuất giữ trạng thái duyệt của nội dung gốc và các hàng rubric đã kiểm duyệt được dùng nguyên vẹn.
 

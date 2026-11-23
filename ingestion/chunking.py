@@ -122,15 +122,13 @@ def _units(pages: list[str], doc: DocumentRecord, source: FileRecord) -> list[Un
 def make_chunk(
     doc: DocumentRecord, source: FileRecord, unit: Unit, review_status="pending"
 ) -> ChunkRecord:
-    identity = json.dumps(
-        [
-            doc.document_id,
-            source.sha256,
-            unit.section,
-            unit.page_start,
-            unit.page_end,
-            unit.text,
-        ]
+    chunk_id = chunk_id_for(
+        doc.document_id,
+        source.sha256,
+        unit.section,
+        unit.page_start,
+        unit.page_end,
+        unit.text,
     )
     return ChunkRecord(
         document_id=doc.document_id,
@@ -138,9 +136,35 @@ def make_chunk(
         section=unit.section,
         page_start=unit.page_start,
         page_end=unit.page_end,
-        chunk_id=uuid5(NAMESPACE_URL, identity),
+        chunk_id=chunk_id,
         content=unit.text,
         review_status=review_status,
+    )
+
+
+def chunk_id_for(document_id, sha256, section, page_start, page_end, content):
+    identity = json.dumps(
+        [document_id, sha256, section, page_start, page_end, content]
+    )
+    return uuid5(NAMESPACE_URL, identity)
+
+
+def update_chunk_content(chunk: ChunkRecord, content: str) -> ChunkRecord:
+    content = content.strip()
+    if not content:
+        raise ValueError("Chunk content cannot be empty")
+    return chunk.model_copy(
+        update={
+            "content": content,
+            "chunk_id": chunk_id_for(
+                chunk.document_id,
+                chunk.sha256,
+                chunk.section,
+                chunk.page_start,
+                chunk.page_end,
+                content,
+            ),
+        }
     )
 
 
