@@ -1,14 +1,17 @@
 '''Giao diện chat Streamlit. Chạy: streamlit run app/main.py'''
 from time import perf_counter
 
+import browser_storage
 import streamlit as st
 from api_client import ApiError, ask
 from chat_sessions import (
-    MAX_ARCHIVED_CONVERSATIONS,
     NEW_CONVERSATION_TITLE,
     conversation_title,
     create_conversation,
+    delete_conversation,
     new_conversation,
+    rename_conversation,
+    validate_conversations,
 )
 
 FLAG_TEXT = {
@@ -25,12 +28,92 @@ st.set_page_config(page_title='Chatbot học vụ CTU', page_icon='🎓')
 st.title('Chatbot tư vấn học vụ CTU')
 st.caption('Câu trả lời dựa trên tài liệu đã nạp vào hệ thống. Hãy đối chiếu nguồn trích dẫn.')
 
+storage_state = browser_storage.load_conversations()
+if not isinstance(storage_state, dict) or not storage_state.get('ready'):
+    st.info('Đang tải lịch sử trò chuyện từ trình duyệt...')
+    st.stop()
+if storage_state.get('error'):
+    st.error(storage_state['error'])
+    st.stop()
+
 if 'conversations' not in st.session_state:
-    existing_messages = st.session_state.get('messages', [])
-    conversation = new_conversation()
-    conversation['messages'] = existing_messages
-    st.session_state.conversations = [conversation]
-    st.session_state.active_conversation_id = conversation['id']
+    persisted_state = storage_state.get('state')
+    if not isinstance(persisted_state, dict):
+        st.error('Dữ liệu lịch sử trò chuyện đã lưu không đúng định dạng.')
+        st.stop()
+    try:
+        stored_conversations = validate_conversations(
+            persisted_state.get('conversations', [])
+        )
+    except (TypeError, ValueError) as exc:
+        st.error(f'Lịch sử trò chuyện đã lưu không hợp lệ: {exc}')
+        st.stop()
+    if stored_conversations:
+        st.session_state.conversations = stored_conversations
+        saved_active_id = persisted_state.get('active_conversation_id')
+        conversation_ids = {
+            conversation['id'] for conversation in stored_conversations
+        }
+        st.session_state.active_conversation_id = (
+            saved_active_id
+            if isinstance(saved_active_id, str)
+            and saved_active_id in conversation_ids
+            else stored_conversations[0]['id']
+        )
+    else:
+        conversation = new_conversation()
+        st.session_state.conversations = [conversation]
+        st.session_state.active_conversation_id = conversation['id']
+
+
+def start_new_conversation():
+    conversations, active_id = create_conversation(
+        st.session_state.conversations
+    )
+    st.session_state.conversations = conversations
+    st.session_state.active_conversation_id = active_id
+
+
+def select_conversation(conversation_id):
+    st.session_state.active_conversation_id = conversation_id
+
+
+def remove_conversation(conversation_id):
+    conversations, active_id = delete_conversation(
+        st.session_state.conversations,
+        conversation_id,
+        st.session_state.active_conversation_id,
+    )
+    st.session_state.conversations = conversations
+    st.session_state.active_conversation_id = active_id
+    if st.session_state.get('renaming_conversation_id') == conversation_id:
+        st.session_state.renaming_conversation_id = None
+
+
+def begin_rename_conversation(conversation_id):
+    st.session_state.renaming_conversation_id = conversation_id
+    st.session_state.rename_error = None
+    st.session_state.pop(f'rename_title_{conversation_id}', None)
+
+
+def save_renamed_conversation(conversation_id, title_key):
+    try:
+        rename_conversation(
+            st.session_state.conversations,
+            conversation_id,
+            st.session_state.get(title_key, ''),
+        )
+    except ValueError as exc:
+        st.session_state.rename_error = str(exc)
+        return
+    st.session_state.renaming_conversation_id = None
+    st.session_state.rename_error = None
+
+
+def cancel_rename_conversation():
+    st.session_state.renaming_conversation_id = None
+    st.session_state.rename_error = None
+
 
 conversation_by_id = {
     conversation['id']: conversation
@@ -41,36 +124,68 @@ if active_id not in conversation_by_id:
     active_id = next(iter(conversation_by_id))
 
 
-def activate_selected_conversation():
-    selected_id = st.session_state.get('conversation_selector')
-    if selected_id in conversation_by_id:
-        st.session_state.active_conversation_id = selected_id
-
-
 with st.sidebar:
-    if st.button('Cuộc hội thoại mới') and conversation_by_id[active_id]['messages']:
-        conversations, active_id = create_conversation(
-            st.session_state.conversations,
-            active_id=active_id,
-            max_archived=MAX_ARCHIVED_CONVERSATIONS,
-        )
-        st.session_state.conversations = conversations
-        st.session_state.active_conversation_id = active_id
-        st.rerun()
-    labels = {
-        conversation_id: f"{number}. {conversation['title']}"
-        for number, (conversation_id, conversation) in enumerate(conversation_by_id.items(), 1)
-    }
-    # Streamlit sends labels back, so keep the label snapshot stable for this widget.
-    if st.session_state.get('conversation_selector') != active_id:
-        st.session_state.conversation_selector = active_id
-    st.selectbox(
-        'Các cuộc hội thoại',
-        options=list(labels),
-        format_func=labels.__getitem__,
-        key='conversation_selector',
-        on_change=activate_selected_conversation,
+    st.button(
+        'Cuộc hội thoại mới',
+        on_click=start_new_conversation,
+        use_container_width=True,
     )
+    st.markdown('**Các cuộc hội thoại**')
+    for conversation_id, conversation in conversation_by_id.items():
+        with st.container():
+            row = st.columns([0.82, 0.18], vertical_alignment='center')
+            row[0].button(
+                conversation['title'],
+                key=f'conversation_{conversation_id}',
+                type='primary' if conversation_id == active_id else 'secondary',
+                use_container_width=True,
+                on_click=select_conversation,
+                args=(conversation_id,),
+            )
+            with row[1].popover('⋮', help='Tùy chọn cuộc hội thoại'):
+                if (
+                    st.session_state.get('renaming_conversation_id')
+                    == conversation_id
+                ):
+                    title_key = f'rename_title_{conversation_id}'
+                    with st.form(f'rename_form_{conversation_id}'):
+                        st.text_input(
+                            'Tên mới',
+                            value=conversation['title'],
+                            key=title_key,
+                            max_chars=80,
+                        )
+                        if error := st.session_state.get('rename_error'):
+                            st.error(error)
+                        save_col, cancel_col = st.columns(2)
+                        save_col.form_submit_button(
+                            'Lưu',
+                            type='primary',
+                            use_container_width=True,
+                            on_click=save_renamed_conversation,
+                            args=(conversation_id, title_key),
+                        )
+                        cancel_col.form_submit_button(
+                            'Hủy',
+                            use_container_width=True,
+                            on_click=cancel_rename_conversation,
+                        )
+                else:
+                    st.button(
+                        'Đổi tên',
+                        key=f'rename_conversation_{conversation_id}',
+                        use_container_width=True,
+                        on_click=begin_rename_conversation,
+                        args=(conversation_id,),
+                    )
+                    st.button(
+                        'Xóa',
+                        key=f'delete_conversation_{conversation_id}',
+                        type='secondary',
+                        use_container_width=True,
+                        on_click=remove_conversation,
+                        args=(conversation_id,),
+                    )
 
 st.session_state.active_conversation_id = active_id
 active_conversation = conversation_by_id[active_id]
@@ -139,3 +254,11 @@ if q := st.chat_input('Nhập câu hỏi về quy chế học vụ...'):
                 msg = {'role': 'assistant', 'content': str(e)}
         render(msg)
     active_conversation['messages'].append(msg)
+
+save_state = browser_storage.save_conversations(
+    st.session_state.conversations,
+    st.session_state.active_conversation_id,
+    enabled=True,
+)
+if isinstance(save_state, dict) and save_state.get('error'):
+    st.error(save_state['error'])

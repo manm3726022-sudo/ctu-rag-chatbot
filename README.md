@@ -101,7 +101,7 @@ streamlit run app/main.py                                   # cửa sổ 2 -> ht
 curl http://127.0.0.1:8000/health                           # xem số điểm checked/pending
 ```
 
-Giao diện giữ tối đa 5 cuộc hội thoại trước đó trong phiên Streamlit hiện tại. Chọn cuộc hội thoại ở thanh bên để mở lại; nút **Cuộc hội thoại mới** tạo phiên trống và giữ nội dung phiên đang chat. Lịch sử này chưa được lưu bền vững qua khi phiên Streamlit kết thúc.
+Lịch sử hội thoại được giữ trong localStorage của trình duyệt nên vẫn còn sau khi refresh trang hoặc khi Streamlit tạo lại session. Chọn một cuộc hội thoại ở thanh bên để mở; nút **Cuộc hội thoại mới** tạo phiên mới và không tự xóa các cuộc hội thoại cũ. Dùng nút **⋮** cạnh cuộc hội thoại để **Đổi tên** hoặc **Xóa** riêng cuộc đó. Lịch sử gắn với browser profile hiện tại; xóa dữ liệu trang web của trình duyệt cũng sẽ xóa lịch sử.
 
 ### Giao diện quản trị tài liệu (MVP)
 
@@ -168,4 +168,4 @@ Chi tiết thiết kế: `docs/design.md`. Hướng dẫn riêng cho phần truy
 - **Quota Groq Free** có hạn chế theo phút và theo ngày, tính theo từng model và có thể thay đổi. Kiểm tra trang Limits trong Groq Console trước mỗi buổi demo; khi hết quota thì dừng gọi và thông báo người dùng. Với cấu hình mặc định, hai câu hỏi liên tiếp trong vòng ~35 giây có thể nhận lỗi tạm thời "quá tải" (xem `.env.example`, mục EVIDENCE_MAX_TOKENS).
 - Chỉ câu hỏi và các đoạn bằng chứng cần thiết được gửi tới Groq; không gửi dữ liệu cá nhân.
 - Chatbot trích dẫn nguồn theo metadata của tài liệu, từ chối hoặc hỏi lại khi thiếu bằng chứng. Câu trả lời chỉ mang tính tham khảo, sinh viên cần đối chiếu với văn bản gốc.
-- Hạn chế đã biết của MVP: mỗi câu hỏi được truy xuất độc lập, lịch sử hội thoại chỉ nằm trong phiên làm việc của trình duyệt; chưa lọc theo khóa tuyển sinh (payload chưa có dữ liệu); trích dẫn hiển thị trang đầu của đoạn nhiều trang.
+- Hạn chế đã biết của MVP: lịch sử hội thoại chỉ nằm trong localStorage của browser profile hiện tại, không đồng bộ giữa trình duyệt/thiết bị; chưa lọc theo khóa tuyển sinh (payload chưa có dữ liệu); trích dẫn hiển thị trang đầu của đoạn nhiều trang.

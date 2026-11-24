@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      let componentReady = false;
+      let loadCompleted = false;
+      let lastSavedValue = null;
+
+      function post(type, detail) {
+        window.parent.postMessage(
+          { isStreamlitMessage: true, type, ...detail },
+          "*"
+        );
+      }
+
+      function setValue(value) {
+        post("streamlit:setComponentValue", {
+          value,
+          dataType: "json",
+        });
+      }
+
+      window.addEventListener("message", (event) => {
+        if (event.data?.type !== "streamlit:render" || !componentReady) {
+          return;
+        }
+
+        const args = event.data.args || {};
+        if (args.mode === "load" && !loadCompleted) {
+          loadCompleted = true;
+          try {
+            const serialized = localStorage.getItem(args.storage_key);
+            setValue({
+              ready: true,
+              state: serialized ? JSON.parse(serialized) : {},
+            });
+          } catch (error) {
+            setValue({
+              ready: true,
+              error: `Không đọc được lịch sử trò chuyện trên trình duyệt: ${error.message}`,
+            });
+          }
+          return;
+        }
+
+        if (args.mode !== "save" || !args.enabled) {
+          return;
+        }
+
+        const serialized = JSON.stringify(args.state);
+        if (serialized === lastSavedValue) {
+          return;
+        }
+        lastSavedValue = serialized;
+        try {
+          localStorage.setItem(args.storage_key, serialized);
+          setValue({ saved: true });
+        } catch (error) {
+          setValue({
+            saved: false,
+            error: `Không lưu được lịch sử trò chuyện trên trình duyệt: ${error.message}`,
+          });
+        }
+      });
+
+      window.parent.postMessage(
+        {
+          isStreamlitMessage: true,
+          type: "streamlit:componentReady",
+          apiVersion: 1,
+        },
+        "*"
+      );
+      componentReady = true;
+      post("streamlit:setFrameHeight", { height: 0 });
+    </script>
+  </head>
+  <body></body>
+</html>
