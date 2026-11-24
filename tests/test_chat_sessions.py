@@ -6,40 +6,93 @@ from streamlit.testing.v1 import AppTest
 
 from app import api_client
 from app.chat_sessions import (
-    MAX_ARCHIVED_CONVERSATIONS,
     NEW_CONVERSATION_TITLE,
     conversation_title,
     create_conversation,
+    delete_conversation,
+    rename_conversation,
+    validate_conversations,
 )
 
 
-def test_create_conversation_preserves_messages_and_limits_archived_sessions():
+def test_create_conversation_keeps_all_existing_conversations():
     existing = [
         {'id': str(index), 'title': f'Chat {index}', 'messages': [{'content': str(index)}]}
-        for index in range(MAX_ARCHIVED_CONVERSATIONS + 2)
+        for index in range(8)
     ]
 
     conversations, active_id = create_conversation(existing)
 
-    assert len(conversations) == MAX_ARCHIVED_CONVERSATIONS + 1
+    assert len(conversations) == len(existing) + 1
     assert conversations[0]['id'] == active_id
     assert conversations[0]['messages'] == []
     assert [conversation['id'] for conversation in conversations[1:]] == [
-        str(index) for index in range(MAX_ARCHIVED_CONVERSATIONS)
+        str(index) for index in range(8)
     ]
     assert conversations[1]['messages'] == [{'content': '0'}]
 
 
-def test_create_conversation_keeps_active_chat_even_if_it_is_oldest():
+@pytest.mark.parametrize(
+    ('active_id', 'expected_active'),
+    [('0', '1'), ('1', '1'), ('missing', '1')],
+)
+def test_delete_conversation_removes_only_selected_item_and_selects_valid_active(
+    active_id, expected_active
+):
     existing = [
-        {'id': str(index), 'title': f'Chat {index}', 'messages': [{'content': str(index)}]}
-        for index in range(MAX_ARCHIVED_CONVERSATIONS + 1)
+        {'id': str(index), 'title': f'Chat {index}', 'messages': []}
+        for index in range(3)
     ]
 
-    conversations, _ = create_conversation(existing, active_id=str(MAX_ARCHIVED_CONVERSATIONS))
+    conversations, new_active = delete_conversation(existing, '0', active_id)
 
-    assert str(MAX_ARCHIVED_CONVERSATIONS) == conversations[1]['id']
-    assert len(conversations) == MAX_ARCHIVED_CONVERSATIONS + 1
+    assert [conversation['id'] for conversation in conversations] == ['1', '2']
+    assert new_active == expected_active
+
+
+def test_deleting_last_conversation_creates_an_empty_active_conversation():
+    conversations, active_id = delete_conversation(
+        [{'id': 'only', 'title': 'Only', 'messages': [{'content': 'saved'}]}],
+        'only',
+        'only',
+    )
+
+    assert len(conversations) == 1
+    assert conversations[0]['id'] == active_id
+    assert conversations[0]['messages'] == []
+
+
+def test_rename_conversation_changes_only_the_selected_title():
+    conversations = [
+        {'id': 'first', 'title': 'First', 'messages': [{'content': 'kept'}]},
+        {'id': 'second', 'title': 'Second', 'messages': []},
+    ]
+
+    rename_conversation(conversations, 'first', '  New title  ')
+
+    assert conversations[0]['title'] == 'New title'
+    assert conversations[0]['messages'] == [{'content': 'kept'}]
+    assert conversations[1]['title'] == 'Second'
+
+
+def test_rename_conversation_rejects_empty_titles():
+    with pytest.raises(ValueError, match='không được để trống'):
+        rename_conversation(
+            [{'id': 'first', 'title': 'First', 'messages': []}],
+            'first',
+            '   ',
+        )
+
+
+def test_validate_conversations_rejects_malformed_saved_messages():
+    with pytest.raises(ValueError, match='tin nhắn'):
+        validate_conversations([
+            {
+                'id': 'one',
+                'title': 'Chat',
+                'messages': [{'role': 'system', 'content': 'not supported'}],
+            }
+        ])
 
 
 def test_conversation_title_uses_first_question_and_truncates_long_text():
@@ -61,9 +114,21 @@ def test_chat_service_error_message(monkeypatch, headers, message):
     assert str(exc.value) == message
 
 
-def test_chat_recovers_from_stale_selector_label(monkeypatch):
+def test_chat_keeps_conversations_available_for_selection(monkeypatch):
     app_dir = Path(__file__).resolve().parents[1] / 'app'
     monkeypatch.syspath_prepend(str(app_dir))
+    import browser_storage
+
+    monkeypatch.setattr(
+        browser_storage,
+        'load_conversations',
+        lambda: {'ready': True, 'state': {'conversations': []}},
+    )
+    monkeypatch.setattr(
+        browser_storage,
+        'save_conversations',
+        lambda conversations, active_id, enabled: None,
+    )
 
     def request(*args, **kwargs):
         return SimpleNamespace(
@@ -77,26 +142,17 @@ def test_chat_recovers_from_stale_selector_label(monkeypatch):
         page.chat_input[0].set_value(question).run()
         assert not page.exception
 
-    page.session_state.active_conversation_id = NEW_CONVERSATION_TITLE
-    page.chat_input[0].set_value('Câu hỏi 3').run()
-
-    assert not page.exception
-    assert page.session_state.active_conversation_id == conversation_id
-    assert len(page.session_state.messages) == 6
-    assert sum('Token · 12' in item.value for item in page.markdown) == 3
-
     page.button[0].click().run()
     new_id = page.session_state.active_conversation_id
     assert new_id != conversation_id
-    page.chat_input[0].set_value('Câu hỏi 1').run()
-    assert len(set(page.selectbox[0].options)) == 2
+    page.chat_input[0].set_value('Câu hỏi 3').run()
 
-    page.selectbox[0].select_index(1).run()
-    assert not page.exception
-    assert page.session_state.active_conversation_id == conversation_id
-    assert len(page.session_state.messages) == 6
-
-    page.selectbox[0].select_index(0).run()
     assert not page.exception
     assert page.session_state.active_conversation_id == new_id
     assert len(page.session_state.messages) == 2
+    assert sum('Token · 12' in item.value for item in page.markdown) == 1
+
+    assert len(page.session_state.conversations) == 2
+    page.button(key=f'conversation_{conversation_id}').click().run()
+    assert page.session_state.active_conversation_id == conversation_id
+    assert len(page.session_state.messages) == 4

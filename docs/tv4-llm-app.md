@@ -30,9 +30,10 @@ số hiệu `QĐ-MOCK`), chỉ để thử luồng, không dùng để đánh gi
 `POST /chat` nhận tối đa 6 lượt history gần nhất. Streamlit gửi lịch sử này nhưng API chỉ ghép
 ngữ cảnh vào câu hỏi khi lượt assistant ngay trước đó có `need_clarification=true`; câu hỏi mới
 sau một câu trả lời hoàn tất vẫn được xử lý độc lập. Ngữ cảnh ghép được dùng cho cả retrieval
-và generation, nên câu trả lời như “khóa 47” có thể tiếp tục câu hỏi vừa làm rõ. Bấm “Cuộc hội
-thoại mới” để xoá history. History bị giới hạn độ dài để không phình prompt; đây chưa phải bộ nhớ
-bền vững qua lần khởi động lại ứng dụng.
+và generation, nên câu trả lời như “khóa 47” có thể tiếp tục câu hỏi vừa làm rõ. Lịch sử hội thoại
+được lưu trong localStorage của browser profile nên còn sau khi refresh trang. “Cuộc hội thoại mới”
+tạo phiên riêng; nút “⋮” cạnh từng phiên mở tùy chọn đổi tên hoặc xóa cuộc hội thoại đó. Lịch sử
+không đồng bộ giữa trình duyệt/thiết bị và sẽ mất nếu người dùng xóa dữ liệu trang web của trình duyệt.
 
 ## Trạng thái kiểm thử
 
