@@ -1,4 +1,6 @@
 '''Giao diện chat Streamlit. Chạy: streamlit run app/main.py'''
+from time import perf_counter
+
 import streamlit as st
 from api_client import ApiError, ask
 from chat_sessions import (
@@ -35,38 +37,57 @@ conversation_by_id = {
     for conversation in st.session_state.conversations
 }
 active_id = st.session_state.active_conversation_id
-active_conversation = conversation_by_id[active_id]
-st.session_state.messages = active_conversation['messages']
+if active_id not in conversation_by_id:
+    active_id = next(iter(conversation_by_id))
 
 
 def activate_selected_conversation():
-    st.session_state.active_conversation_id = st.session_state.conversation_selector
+    selected_id = st.session_state.get('conversation_selector')
+    if selected_id in conversation_by_id:
+        st.session_state.active_conversation_id = selected_id
 
 
 with st.sidebar:
-    if st.button('Cuộc hội thoại mới') and active_conversation['messages']:
+    if st.button('Cuộc hội thoại mới') and conversation_by_id[active_id]['messages']:
         conversations, active_id = create_conversation(
             st.session_state.conversations,
-            active_id=st.session_state.active_conversation_id,
+            active_id=active_id,
             max_archived=MAX_ARCHIVED_CONVERSATIONS,
         )
         st.session_state.conversations = conversations
         st.session_state.active_conversation_id = active_id
-        st.session_state.conversation_selector = active_id
         st.rerun()
-    conversation_ids = [conversation['id'] for conversation in st.session_state.conversations]
+    labels = {
+        conversation_id: f"{number}. {conversation['title']}"
+        for number, (conversation_id, conversation) in enumerate(conversation_by_id.items(), 1)
+    }
+    # Streamlit sends labels back, so keep the label snapshot stable for this widget.
+    if st.session_state.get('conversation_selector') != active_id:
+        st.session_state.conversation_selector = active_id
     st.selectbox(
         'Các cuộc hội thoại',
-        options=conversation_ids,
-        format_func=lambda conversation_id: conversation_by_id[conversation_id]['title'],
+        options=list(labels),
+        format_func=labels.__getitem__,
         key='conversation_selector',
         on_change=activate_selected_conversation,
     )
+
+st.session_state.active_conversation_id = active_id
+active_conversation = conversation_by_id[active_id]
+st.session_state.messages = active_conversation['messages']
 
 
 def render(msg):
     st.markdown(msg['content'])
     d = msg.get('data') or {}
+    if (seconds := msg.get('response_seconds')) is not None:
+        tokens = d.get('total_tokens')
+        with st.container(horizontal=True, gap='small'):
+            st.badge(f'Thời gian phản hồi · {seconds:.2f} s', color='blue')
+            st.badge(
+                f'Token · {tokens:,}' if tokens is not None else 'Token · Chưa có dữ liệu',
+                color='violet',
+            )
     if d.get('need_clarification'):
         st.info('Chatbot cần thêm thông tin để trả lời chính xác.')
     if d.get('abstain'):
@@ -108,8 +129,12 @@ if q := st.chat_input('Nhập câu hỏi về quy chế học vụ...'):
     with st.chat_message('assistant'):
         with st.spinner('Đang tra cứu tài liệu...'):
             try:
+                started = perf_counter()
                 data = ask(q, history)
-                msg = {'role': 'assistant', 'content': data['answer'], 'data': data}
+                msg = {
+                    'role': 'assistant', 'content': data['answer'], 'data': data,
+                    'response_seconds': perf_counter() - started,
+                }
             except ApiError as e:
                 msg = {'role': 'assistant', 'content': str(e)}
         render(msg)

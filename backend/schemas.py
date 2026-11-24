@@ -44,3 +44,4 @@ class ChatResponse(BaseModel):
     need_clarification: bool = False
     abstain: bool = False
     risk_flag: str | None = None
+    total_tokens: int | None = Field(default=None, ge=0)

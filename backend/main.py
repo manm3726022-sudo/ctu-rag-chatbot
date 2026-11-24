@@ -43,14 +43,20 @@ def _answer(question, evidence):
     '''Sinh và kiểm tra trích dẫn; sinh lại đúng một lần nếu không có citation hợp lệ (D3).'''
     ev_text = generator.format_evidence(evidence)
     draft = generator.generate_answer(question, ev_text)
+    total_tokens = (draft.usage or {}).get('total_tokens')
     text, cites, flags = citation_validator.validate(draft.text, evidence, question)
     if 'no_citation' in flags and not (draft.abstain or draft.clarify):
         try:
             draft = generator.generate_answer(question, ev_text + '\n\n' + RETRY_NOTE)
+            retry_tokens = (draft.usage or {}).get('total_tokens')
+            total_tokens = (
+                total_tokens + retry_tokens
+                if total_tokens is not None and retry_tokens is not None else None
+            )
             text, cites, flags = citation_validator.validate(draft.text, evidence, question)
         except (groq_client.QuotaExhausted, groq_client.LLMUnavailable):
             pass
-    return draft, text, cites, flags
+    return draft, text, cites, flags, total_tokens
 
 
 def _routed_info(res) -> dict:
@@ -90,7 +96,7 @@ def chat(req: ChatRequest):
         timings_ms['total_ms'] = round((time.perf_counter() - t0) * 1000, 1)
         _log(q=req.question, evidence=[], flags=[flag], routed=_routed_info(res),
              ms=int((time.perf_counter() - t0) * 1000), timings_ms=timings_ms)
-        return ChatResponse(answer=ABSTAIN_MSG, abstain=True, risk_flag=flag)
+        return ChatResponse(answer=ABSTAIN_MSG, abstain=True, risk_flag=flag, total_tokens=0)
     if (
         config.RERANK_ENABLED
         and config.ABSTAIN_THRESHOLD is not None
@@ -100,12 +106,12 @@ def chat(req: ChatRequest):
         _log(q=req.question, evidence=[e.chunk_id for e in ev], scores=[round(e.score, 3) for e in ev],
              flags=['low_score'], routed=_routed_info(res), ms=int((time.perf_counter() - t0) * 1000),
              timings_ms=timings_ms)
-        return ChatResponse(answer=ABSTAIN_MSG, abstain=True, risk_flag='low_score')
+        return ChatResponse(answer=ABSTAIN_MSG, abstain=True, risk_flag='low_score', total_tokens=0)
     answer_started = time.perf_counter()
     try:
-        draft, text, cites, flags = _answer(question, ev)
+        draft, text, cites, flags, total_tokens = _answer(question, ev)
     except groq_client.QuotaExhausted as e:
-        raise HTTPException(status_code=503, detail=str(e), headers={'Retry-After': '60'})
+        raise HTTPException(status_code=503, detail=str(e), headers={'Retry-After': str(e.retry_after)})
     except groq_client.LLMUnavailable as e:
         raise HTTPException(status_code=503, detail=str(e))
     if draft.finish_reason == 'length':
@@ -130,6 +136,7 @@ def chat(req: ChatRequest):
     else:
         out = ChatResponse(answer=text, citations=cites)
     out.risk_flag = ','.join(flags) or None
+    out.total_tokens = total_tokens
     timings_ms['total_ms'] = round((time.perf_counter() - t0) * 1000, 1)
     _log(q=req.question, evidence=[e.chunk_id for e in ev], scores=[round(e.score, 3) for e in ev],
          flags=flags, usage=draft.usage, model=draft.model, ms=int((time.perf_counter() - t0) * 1000),

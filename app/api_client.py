@@ -22,7 +22,10 @@ def ask(question: str, history: list[dict] | None = None) -> dict:
     except requests.RequestException:
         raise ApiError('Không kết nối được máy chủ trả lời. Vui lòng thử lại sau.')
     if r.status_code == 503:
-        raise ApiError('Hệ thống đang quá tải hoặc tạm hết hạn mức. Vui lòng thử lại sau ít phút.')
+        delay = r.headers.get('Retry-After', '')
+        if delay.isdecimal():
+            raise ApiError(f'Đã chạm hạn mức token. Vui lòng thử lại sau {delay} giây.')
+        raise ApiError('Dịch vụ trả lời tạm thời không khả dụng. Vui lòng thử lại sau.')
     if r.status_code == 422:
         raise ApiError('Câu hỏi trống hoặc dài quá 1.000 ký tự.')
     if r.status_code != 200:
