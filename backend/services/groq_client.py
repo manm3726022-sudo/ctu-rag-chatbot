@@ -2,6 +2,7 @@
 Không có đường nào gọi dịch vụ trả phí (runbook §10.2, quyết định D1).'''
 import time
 from collections import deque
+from math import ceil
 
 import groq
 from groq import Groq
@@ -10,7 +11,9 @@ from core import config
 
 
 class QuotaExhausted(Exception):
-    pass
+    def __init__(self, message: str, retry_after: int = 60):
+        super().__init__(message)
+        self.retry_after = retry_after
 
 
 class LLMUnavailable(Exception):
@@ -39,9 +42,14 @@ class TpmLimiter:
     def wait_time(self, need: int, now: float) -> float:
         while self.events and now - self.events[0][0] >= 60:
             self.events.popleft()
-        if not self.events or sum(t for _, t in self.events) + need <= self.budget:
+        remaining = sum(tokens for _, tokens in self.events)
+        if remaining + need <= self.budget:
             return 0.0
-        return max(0.0, 60 - (now - self.events[0][0]))
+        for recorded_at, tokens in self.events:
+            remaining -= tokens
+            if remaining == 0 or remaining + need <= self.budget:
+                return 60 - (now - recorded_at)
+        return 0.0
 
     def record(self, need: int, now: float):
         self.events.append((now, need))
@@ -61,7 +69,8 @@ def chat(messages, est_tokens: int, sleep=time.sleep):
     '''Gọi Chat Completions. Ném QuotaExhausted hoặc LLMUnavailable khi không còn cách nào.'''
     wait = limiter.wait_time(est_tokens, time.monotonic())
     if wait > MAX_WAIT_S:
-        raise QuotaExhausted(f'Đang vượt ngân sách token mỗi phút, thử lại sau {wait:.0f} giây')
+        delay = ceil(wait)
+        raise QuotaExhausted(f'Đang vượt ngân sách token mỗi phút, thử lại sau {delay} giây', delay)
     if wait > 0:
         sleep(wait)
     limiter.record(est_tokens, time.monotonic())

@@ -69,13 +69,20 @@ def test_bo_gioi_han_tpm():
     assert lim.wait_time(400, now=10.0) == 50.0
     assert lim.wait_time(100, now=10.0) == 0.0
 
+    lim.record(150, now=5.0)
+    assert lim.wait_time(900, now=10.0) == 55.0
+    assert lim.wait_time(900, now=60.0) == 5.0
+    assert lim.wait_time(1100, now=65.0) == 0.0
+
 
 def test_vuot_ngan_sach_qua_lau_thi_bao_het_quota(monkeypatch):
     lim = gc.TpmLimiter(1000)
-    lim.record(1000, now=__import__('time').monotonic())
+    lim.record(1000, now=0.0)
+    monkeypatch.setattr(gc.time, 'monotonic', lambda: 17.2)
     monkeypatch.setattr(gc, 'limiter', lim)
-    with pytest.raises(gc.QuotaExhausted):
+    with pytest.raises(gc.QuotaExhausted) as exc:
         gc.chat([], 500, sleep=nosleep)
+    assert exc.value.retry_after == 43
 
 
 def test_thieu_khoa_api_bao_loi_ro_rang(monkeypatch):

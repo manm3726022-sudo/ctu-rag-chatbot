@@ -38,6 +38,7 @@ def test_khong_bang_chung_thi_tu_choi_va_khong_goi_llm(monkeypatch):
     c = setup(monkeypatch, evidence=[], exc=AssertionError('không được gọi LLM'))
     r = c.post('/chat', json={'question': 'abc'}).json()
     assert r['abstain'] is True and r['answer'] == main.ABSTAIN_MSG
+    assert r['total_tokens'] == 0
 
 
 def test_clarify(monkeypatch):
@@ -123,10 +124,24 @@ def test_khong_co_citation_hop_le_thi_tu_choi(monkeypatch):
     assert r['abstain'] is True and 'no_citation' in r['risk_flag']
 
 
+def test_total_tokens_counts_citation_retry(monkeypatch):
+    c = setup(monkeypatch)
+    drafts = iter([
+        generator.AnswerDraft('Trả lời không nguồn.', usage={'total_tokens': 120}),
+        generator.AnswerDraft('Tối đa 18 tín chỉ [S1].', usage={'total_tokens': 150}),
+    ])
+    monkeypatch.setattr(generator, 'generate_answer', lambda q, e: next(drafts))
+
+    response = c.post('/chat', json={'question': 'Tối đa bao nhiêu tín chỉ?'})
+
+    assert response.status_code == 200
+    assert response.json()['total_tokens'] == 270
+
+
 def test_het_quota_tra_503(monkeypatch):
-    c = setup(monkeypatch, exc=groq_client.QuotaExhausted('hết quota'))
+    c = setup(monkeypatch, exc=groq_client.QuotaExhausted('hết quota', retry_after=43))
     r = c.post('/chat', json={'question': 'hỏi'})
-    assert r.status_code == 503 and r.headers.get('retry-after') == '60'
+    assert r.status_code == 503 and r.headers.get('retry-after') == '43'
 
 
 def test_dau_vao_khong_hop_le(monkeypatch):
